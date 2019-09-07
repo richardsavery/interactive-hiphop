@@ -1,11 +1,10 @@
 import os
 import sys
 import wave
+import pydub
 import pyaudio
 
 import speech_recognition as sr
-
-
 
 # only plays an audio file
 # doesn't terminate unless manual cancel
@@ -31,3 +30,4 @@ def play_wav_file(filename=None):
     stream.stop_stream()
     stream.close()
     p.terminate()
+
