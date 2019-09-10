@@ -1,4 +1,9 @@
 # Rhymes, Keywords, and Sentiment Analysis
+
+## Flow
+
+![Rhyme, Keyword, Sentiment Analysis Flow](https://github.com/richardsavery/interactive-hiphop/raw/master/images/rhymekeywordsentiment.png)
+
 ## Keyword Extraction
 ### Papers
 - [A method to extract essential keywords from a tweet using NLP tools](https://ieeexplore.ieee.org/abstract/document/7829895)
