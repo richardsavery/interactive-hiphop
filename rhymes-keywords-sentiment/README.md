@@ -16,6 +16,7 @@
 ### Algorithms
 
 - [Term Frequency-Inverse Document Frequency (TFIDF)](https://en.wikipedia.org/wiki/Tf%E2%80%93idf)
+- [KEA: Practical Automatic Keyphrase Extraction](https://www.cs.waikato.ac.nz/~ml/publications/2005/chap_Witten-et-al_Windows.pdf)
 
 ## Sentiment Analysis
 ### Papers
@@ -27,3 +28,5 @@
 ## Rhyme Analysis
 ### Papers
 - [Automatic Detection of Internal and Imperfect Rhymes in Rap Lyrics](http://ismir2009.ismir.net/proceedings/OS8-1.pdf)
+  - [GitHub Repo](https://github.com/smhanov/rhymeanalyzer)
+- [Using Automated Rhyme Detection to  Characterize Rhyming Style in Rap Music](https://pdfs.semanticscholar.org/8b66/ea2b1fdc0d7df782545886930ddac0daa1de.pdf)
