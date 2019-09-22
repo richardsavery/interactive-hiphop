@@ -23,4 +23,4 @@ def save_and_tokenize(text):
 def save_utterance(text, filename):
     engine.save_to_file(text, filename)
 
-save_and_tokenize("test I am a robot and I can rap") 
+#save_and_tokenize("test I am a robot and I can rap") 
