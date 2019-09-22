@@ -6,7 +6,7 @@ import random, re
 from data_util import get_verses
 
 
-class HiddenMarkovModel:
+class MarkovModel:
     def __init__(self):
         self.verses = get_verses()
         self.freqDict = {}
