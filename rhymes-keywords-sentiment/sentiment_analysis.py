@@ -12,8 +12,7 @@ def main():
     song_file_name =  "who_shot_ya.txt"
     song_words = get_song_words(song_file_name)
     scores = bag_of_words(sentiment_lexicon_map, song_words)
-    print(scores)
-
+    return scores['Positive']
 
 # 6,800 positive and negative words
 # Shouts to Minqing Hu and Bing Liu
@@ -89,8 +88,6 @@ def bag_of_words(sentiment_lexicon_map, song_words):
                 scores[sentiment] += 1
 
     total_scored_words = sum(scores.values())
-    print(total_scored_words)
-
     scaled_scores = {key: val / total_scored_words for key, val in scores.items()}
             
     return scaled_scores
@@ -99,10 +96,7 @@ def get_data_path(file_name):
     curr_file = os.path.abspath(sys.modules[__name__].__file__)
     curr_dir = os.path.dirname(curr_file)
     data_path = os.path.join(curr_dir, 'sentiment_analysis_data', file_name)
-    print(data_path)
     return data_path
-
-    # return '.' + os.path.sep + 'sentiment_analysis_data' + os.path.sep + file_name
 
 if __name__ == "__main__":
     main()
