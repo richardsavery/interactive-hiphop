@@ -130,7 +130,7 @@ class TextRank(KeywordModel):
         
         
     def analyze(self, text, 
-                candidate_pos=['NOUN', 'PROPN'], 
+                candidate_pos=['NOUN', 'PROPN', 'VERB', 'ADJ', "ADV"], 
                 window_size=4, lower=False, stopwords=list()):
         """Main function to analyze text"""
         
@@ -176,5 +176,9 @@ if __name__ == "__main__":
     with open("noneshallpass.txt") as f:
         song_lyrics = f.read().lower()
     km = KeywordExtractor(model="textrank")
+
+    extra_stop_words = ["n't", "'s", "'m", "``", "'", '"', '.', ","]
+    km.set_stopwords(extra_stop_words)
+
     km.analyze(song_lyrics)
     print(km.get_keywords(10))
