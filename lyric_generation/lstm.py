@@ -13,7 +13,7 @@ from sklearn.preprocessing import OneHotEncoder
 from keras.preprocessing.text import Tokenizer
 from keras.utils import to_categorical
 
-from data_util import get_verses, create_data
+from data_util import get_verses
 
 
 class LSTM_Generator:
