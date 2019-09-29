@@ -20,19 +20,17 @@ def get_verses():
                 for verse in data[artist][album][song]:
                     verse = add_start_end_tokens(verse)
                     verse = filterVerse(verse)
+                    # verses.append(verse.split())
                     verses.append(verse)
     return verses
 
 
 def filterVerse(verse):
-    # Getting rid of anything in paranthesis
-    return re.sub("[\(\[].*?[\)\]]", "", verse)
+    # Getting rid of anything in paranthesis and commas
+    return re.sub("[\(\[].*?[\)\]]", "", verse).replace(",", "")
 
 
 def add_start_end_tokens(verse):
     verse.append(END_VERSE_TOKEN)
     verse = END_LINE_TOKEN.join(verse).lower()
     return verse
-
-
-print(get_verses()[0])
