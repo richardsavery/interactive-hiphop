@@ -4,7 +4,9 @@ from keras.layers import Dense, Embedding, Dropout, LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
 from keras.preprocessing.text import Tokenizer
+from keras.callbacks import ModelCheckpoint
 import pickle
+import os
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
@@ -65,7 +67,13 @@ class LSTM_Generator:
         print(self.model.summary())
 
     def fit(self):
-        self.model.fit(self.X, self.y, batch_size=128, epochs=100)
+        checkpoint = ModelCheckpoint(
+            os.getcwd(), monitor="val_acc", verbose=1, save_best_only=True, mode="max"
+        )
+        callbacks_list = [checkpoint]
+        self.model.fit(
+            self.X, self.y, batch_size=128, epochs=100, callbacks=callbacks_list
+        )
 
 
 LSTM_Generator()
