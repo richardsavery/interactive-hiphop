@@ -1,9 +1,10 @@
 import numpy as np
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense, Embedding, Dropout, LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
 from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 from keras.callbacks import ModelCheckpoint
 import pickle
 import os
@@ -19,18 +20,42 @@ from data_util import get_verses
 class LSTM_Generator:
     def __init__(self):
         self.verses = get_verses()
-        # self.data = create_data(self.verses)
+
+    def train(self):
         self.max_len = max(map(lambda x: len(x), self.verses))
         self.embed()
-        print("data done")
+        print("----------------------------------------")
+        print("Data Loaded")
+        print("----------------------------------------")
         self.create_model()
-        print("model created")
+        print("----------------------------------------")
+        print("Model Created")
+        print("----------------------------------------")
         pickle.dump(self.tokenizer, open("tokenizer.pkl", "wb"))
         self.fit()
+        print("----------------------------------------")
+        print("Model Trained")
+        print("----------------------------------------")
         self.model.save("model.h5")
 
-    def generate(self, startWord):
-        pass
+    def generate(self, seed, length=100):
+        model = load_model("model.h5")
+        tokenizer = pickle.load(open("tokenizer.pkl", "rb"))
+        sequence = seed
+        result = []
+
+        for _ in range(length):
+            encoded = tokenizer.texts_to_sequences([sequence])[0]
+            encoded = pad_sequences([encoded], maxlen=10, truncating="pre")
+            pred = model.predict_classes(encoded, verbose=0)
+            predWord = ""
+            for word, index in tokenizer.word_index.items():
+                if index == pred:
+                    predWord = word
+                    break
+            sequence += " " + predWord
+            result.append(predWord)
+        return " ".join(result)
 
     def embed(self):
         # TODO: Use Word2Vec or GloVe to create embeddings for words
@@ -76,4 +101,6 @@ class LSTM_Generator:
         )
 
 
-LSTM_Generator()
+model = LSTM_Generator()
+gen = model.generate("manifest")
+print(gen)
