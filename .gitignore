@@ -123,6 +123,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# DS_Store
+# Custom
 .DS_Store
 .icloud
+.vscode/
+*.code-workspace
