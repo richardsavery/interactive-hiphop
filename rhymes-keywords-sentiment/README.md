@@ -30,3 +30,10 @@
 - [Automatic Detection of Internal and Imperfect Rhymes in Rap Lyrics](http://ismir2009.ismir.net/proceedings/OS8-1.pdf)
   - [GitHub Repo](https://github.com/smhanov/rhymeanalyzer)
 - [Using Automated Rhyme Detection to  Characterize Rhyming Style in Rap Music](https://pdfs.semanticscholar.org/8b66/ea2b1fdc0d7df782545886930ddac0daa1de.pdf)
+- [Rhyme, Rhythm, and Rhubarb: Using Probabilistic Methods to Analyze Hip Hop,Poetry, and Misheard Lyrics](https://uwspace.uwaterloo.ca/bitstream/handle/10012/5419/Hirjee_Hussein.pdf?sequence=1&isAllowed=y)
+
+### Repositories
+
+- [rhymeanalyzer](https://github.com/smhanov/rhymeanalyzer)
+  - Clone of Hussein Hirjee's project from above papers
+  - [SourceForge](https://sourceforge.net/projects/rhymeanalyzer/)
