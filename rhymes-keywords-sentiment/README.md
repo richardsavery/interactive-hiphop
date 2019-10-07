@@ -37,3 +37,19 @@
 - [rhymeanalyzer](https://github.com/smhanov/rhymeanalyzer)
   - Clone of Hussein Hirjee's project from above papers
   - [SourceForge](https://sourceforge.net/projects/rhymeanalyzer/)
+- [Raplyzer](https://github.com/angelogiomateo/Raplyzer)
+  - Utilized this to visualize rhyme schemes [here](https://github.com/RFirstman/hiphop-jazz-analysis)
+  - Could be a good basis for rhyme detection
+
+### Methods
+- Simple Approach
+  - Use phonetic encoding of lyrics to map vowel sounds to an array of words
+- Complex Approach
+  - Split words into their syllables
+  - Find rhymes by comparing syllables
+  - Normal rhyme
+    - Syllables share both the nucleus (vowel) and coda (ending consonants)
+  - Imperfect rhyme
+    - Syllables share either the same nucleus or the same coda
+- Reach goal
+  - Add detection for multi-word/polysyllabic rhymes
