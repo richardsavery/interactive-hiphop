@@ -60,16 +60,18 @@ class SpeechToText:
 
         try:
             reader = open(file_name, "r")
-            lines = reader.read()
-            converted = ipa.convert(lines)
+            ipa_file_name = file_name[:-4] + "_IPA.txt"
+            ipa_text_file = open(ipa_file_name, "w")
+
+            lines = reader.readlines()
+            for line in lines:
+                converted = ipa.convert(line)
+                ipa_text_file.write(converted + "\n")
+
             reader.close()
+            ipa_text_file.close()
         except:
             return "Error in Reading File"
-
-        ipa_file_name = file_name[:-4] + "_IPA.txt"
-        ipa_text_file = open(ipa_file_name, "w")
-        ipa_text_file.write(converted)
-        ipa_text_file.close()
         
         return ipa_file_name
 
@@ -166,8 +168,8 @@ class SpeechToText:
         return sample_width, r
 
     def record_to_file(self, path):
-        "Records from the microphone and outputs the resulting data to 'path'"
-        "USE THIS FUNCTION!!!!!"
+        # Records from the microphone and outputs the resulting data to 'path'
+        # USE THIS FUNCTION!!!!!
         sample_width, data = self.record()
         data = pack('<' + ('h'*len(data)), *data)
 
@@ -180,6 +182,12 @@ class SpeechToText:
 
         self.transcribe_audio(path)
         self.write_as_IPA(path)
+
+    # def text_to_ipa(self, path):
+    #     # Use this function if you have a txt file that's in words but need IPA
+    #     f = open(path, 'r')
+    #     words = f.read()
+
 
     # if __name__ == "__main__":
     #     transcribe_audio("sample1.wav")
