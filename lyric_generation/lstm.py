@@ -20,6 +20,7 @@ from data_util import get_verses
 class LSTM_Generator:
     def __init__(self):
         self.verses = get_verses()
+        self.seq_length_pred = 20
 
     def train(self):
         self.max_len = max(map(lambda x: len(x), self.verses))
@@ -44,9 +45,11 @@ class LSTM_Generator:
         sequence = seed
         result = []
 
-        for _ in range(length):
+        while not result or result[-1] != "endverse":
             encoded = tokenizer.texts_to_sequences([sequence])[0]
-            encoded = pad_sequences([encoded], maxlen=10, truncating="pre")
+            encoded = pad_sequences(
+                [encoded], maxlen=self.seq_length_pred, truncating="pre"
+            )
             pred = model.predict_classes(encoded, verbose=0)
             predWord = ""
             for word, index in tokenizer.word_index.items():
@@ -65,8 +68,8 @@ class LSTM_Generator:
         tokenized = self.tokenizer.texts_to_sequences(self.verses)
         self.vocab_size = len(self.tokenizer.word_index) + 1
 
-        # Convert to sequences of length 10 (how many words before to predict)
-        length = 10 + 1
+        # Convert to sequences of length self.seq_length_pred (how many words before to predict)
+        length = self.seq_length_pred + 1
         seq = []
         for i, verse in enumerate(tokenized):
             for j in range(len(verse) - length + 1):
@@ -102,5 +105,10 @@ class LSTM_Generator:
 
 
 model = LSTM_Generator()
-gen = model.generate("manifest")
-print(gen)
+model.embed()
+# seed = input("Seed word/phrase: ")
+# gen = model.generate(seed)
+# print(gen)
+
+# Try using transformers
+# Prog rock lyrics
