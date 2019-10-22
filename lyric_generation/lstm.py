@@ -102,5 +102,6 @@ class LSTM_Generator:
 
 
 model = LSTM_Generator()
+#model.train()
 gen = model.generate("manifest")
 print(gen)
