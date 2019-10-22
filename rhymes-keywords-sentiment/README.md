@@ -31,6 +31,7 @@
   - [GitHub Repo](https://github.com/smhanov/rhymeanalyzer)
 - [Using Automated Rhyme Detection to  Characterize Rhyming Style in Rap Music](https://pdfs.semanticscholar.org/8b66/ea2b1fdc0d7df782545886930ddac0daa1de.pdf)
 - [Rhyme, Rhythm, and Rhubarb: Using Probabilistic Methods to Analyze Hip Hop,Poetry, and Misheard Lyrics](https://uwspace.uwaterloo.ca/bitstream/handle/10012/5419/Hirjee_Hussein.pdf?sequence=1&isAllowed=y)
+- [Unsupervised Rhyme Scheme Identification in Hip Hop Lyrics Using Hidden Markov Models](http://project.eu-bridge.eu/downloads/Unsupervised_Rhyme_Scheme_Identification_in_HipHop_Lyrics_Using_Hidden_Markov_Models.pdf)
 
 ### Repositories
 

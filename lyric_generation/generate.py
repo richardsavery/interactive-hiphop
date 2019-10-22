@@ -1,5 +1,5 @@
 from markov import MarkovModel
-from lstm import LSTM
+from lstm import LSTM_Generator
 
 
 class NoSuchModelException(Exception):
