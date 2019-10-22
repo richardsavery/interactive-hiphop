@@ -105,6 +105,7 @@ class LSTM_Generator:
 
 
 model = LSTM_Generator()
+<<<<<<< HEAD
 model.embed()
 # seed = input("Seed word/phrase: ")
 # gen = model.generate(seed)
@@ -112,3 +113,8 @@ model.embed()
 
 # Try using transformers
 # Prog rock lyrics
+=======
+#model.train()
+gen = model.generate("manifest")
+print(gen)
+>>>>>>> fc6b583bc25a78055130e2e5dd53066726de6d52

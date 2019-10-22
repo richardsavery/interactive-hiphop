@@ -124,7 +124,7 @@ dmypy.json
 .pyre/
 
 # Custom
-.DS_Store
+*.DS_Store
 .icloud
 .vscode/
 *.code-workspace
