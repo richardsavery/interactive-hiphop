@@ -2,6 +2,7 @@ from collections import OrderedDict
 import numpy as np
 import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
+from spacy.tokenizer import Tokenizer
 from abc import ABC, abstractmethod
 
 # If this errors, run "python -m spacy download en_core_web_md"
@@ -49,6 +50,7 @@ class TextRank(KeywordModel):
         self.min_diff = 1e-5 # convergence threshold
         self.steps = 10 # iteration steps
         self.node_weight = None # save keywords and its weight
+        self.text_raw = None
 
     def set_stopwords(self, stopwords):  
         """Set stop words"""
@@ -130,7 +132,7 @@ class TextRank(KeywordModel):
         
         
     def analyze(self, text, 
-                candidate_pos=['NOUN', 'PROPN'], 
+                candidate_pos=['NOUN', 'PROPN', 'VERB', 'ADJ', "ADV"], 
                 window_size=4, lower=False, stopwords=list()):
         """Main function to analyze text"""
         
@@ -138,7 +140,11 @@ class TextRank(KeywordModel):
         self.set_stopwords(stopwords)
         
         # Pare text by spaCy
-        doc = nlp(text)
+        if not self.text_raw:
+            self.text_raw = text
+        else:
+            self.text_raw += " " + text
+        doc = nlp(self.text_raw)
         
         # Filter sentences
         sentences = self.sentence_segment(doc, candidate_pos, lower) # list of list of words
@@ -176,5 +182,20 @@ if __name__ == "__main__":
     with open("noneshallpass.txt") as f:
         song_lyrics = f.read().lower()
     km = KeywordExtractor(model="textrank")
+
+    extra_stop_words = ["n't", "'s", "'m", "``", "'", '"', '.', ","]
+    km.set_stopwords(extra_stop_words)
+
     km.analyze(song_lyrics)
     print(km.get_keywords(10))
+
+    km2 = KeywordExtractor(model="textrank")
+    km2.set_stopwords(extra_stop_words)
+
+    s1 = "This is a test of the model."
+    km2.analyze(s1)
+    print(km2.get_keywords(5))
+
+    s2 = "This is also a test of the keyword model, but with new words."
+    km2.analyze(s2)
+    print(km2.get_keywords(5))

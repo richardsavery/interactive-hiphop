@@ -30,3 +30,27 @@
 - [Automatic Detection of Internal and Imperfect Rhymes in Rap Lyrics](http://ismir2009.ismir.net/proceedings/OS8-1.pdf)
   - [GitHub Repo](https://github.com/smhanov/rhymeanalyzer)
 - [Using Automated Rhyme Detection to  Characterize Rhyming Style in Rap Music](https://pdfs.semanticscholar.org/8b66/ea2b1fdc0d7df782545886930ddac0daa1de.pdf)
+- [Rhyme, Rhythm, and Rhubarb: Using Probabilistic Methods to Analyze Hip Hop,Poetry, and Misheard Lyrics](https://uwspace.uwaterloo.ca/bitstream/handle/10012/5419/Hirjee_Hussein.pdf?sequence=1&isAllowed=y)
+- [Unsupervised Rhyme Scheme Identification in Hip Hop Lyrics Using Hidden Markov Models](http://project.eu-bridge.eu/downloads/Unsupervised_Rhyme_Scheme_Identification_in_HipHop_Lyrics_Using_Hidden_Markov_Models.pdf)
+
+### Repositories
+
+- [rhymeanalyzer](https://github.com/smhanov/rhymeanalyzer)
+  - Clone of Hussein Hirjee's project from above papers
+  - [SourceForge](https://sourceforge.net/projects/rhymeanalyzer/)
+- [Raplyzer](https://github.com/angelogiomateo/Raplyzer)
+  - Utilized this to visualize rhyme schemes [here](https://github.com/RFirstman/hiphop-jazz-analysis)
+  - Could be a good basis for rhyme detection
+
+### Methods
+- Simple Approach
+  - Use phonetic encoding of lyrics to map vowel sounds to an array of words
+- Complex Approach
+  - Split words into their syllables
+  - Find rhymes by comparing syllables
+  - Normal rhyme
+    - Syllables share both the nucleus (vowel) and coda (ending consonants)
+  - Imperfect rhyme
+    - Syllables share either the same nucleus or the same coda
+- Reach goal
+  - Add detection for multi-word/polysyllabic rhymes
