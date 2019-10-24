@@ -104,14 +104,17 @@ class LSTM_Generator:
         )
 
 
-model = LSTM_Generator()
-model.embed()
-# seed = input("Seed word/phrase: ")
-# gen = model.generate(seed)
-# print(gen)
+if __name__ == "__main__":
+    model = LSTM_Generator()
+    # seed = input("Seed word/phrase: ")
+    # gen = model.generate(seed)
+    # print(gen)
 
-# Try using transformers
-# Prog rock lyrics
-# model.train()
-gen = model.generate("manifest")
-print(gen)
+    # Try using transformers
+    # Prog rock lyrics
+    # model.train()
+    gen = model.generate("manifest")
+    print(gen)
+    # model.train()
+    # gen = model.generate("manifest")
+    # print(gen)
