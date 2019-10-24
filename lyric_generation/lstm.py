@@ -20,7 +20,7 @@ from data_util import get_verses
 class LSTM_Generator:
     def __init__(self):
         self.verses = get_verses()
-        self.seq_length_pred = 10
+        self.seq_length_pred = 20
 
     def train(self):
         self.max_len = max(map(lambda x: len(x), self.verses))
@@ -71,11 +71,17 @@ class LSTM_Generator:
         # Convert to sequences of length self.seq_length_pred (how many words before to predict)
         length = self.seq_length_pred + 1
         seq = []
+
         for i, verse in enumerate(tokenized):
-            for j in range(len(verse) - length + 1):
-                seq.append(verse[j : j + length])
+            encoded_seq = np.array([verse[0]])
+            for j in range(1, len(verse)):
+                encoded_seq = np.append(encoded_seq, verse[j])
+                encoded_seq = pad_sequences(
+                    [encoded_seq], maxlen=length, truncating="pre"
+                )
+                seq.append(encoded_seq)
         seq = np.array(seq)
-        self.X, self.y = seq[:, :-1], seq[:, -1]
+        self.X, self.y = seq[:, 0, :-1], seq[:, 0, -1]
         self.y = to_categorical(self.y, num_classes=self.vocab_size)
         self.seq_length = self.X.shape[1]
 
@@ -106,6 +112,7 @@ class LSTM_Generator:
 
 if __name__ == "__main__":
     model = LSTM_Generator()
+    model.train()
     # seed = input("Seed word/phrase: ")
     # gen = model.generate(seed)
     # print(gen)
