@@ -20,7 +20,7 @@ from data_util import get_verses
 class LSTM_Generator:
     def __init__(self):
         self.verses = get_verses()
-        self.seq_length_pred = 20
+        self.seq_length_pred = 10
 
     def train(self):
         self.max_len = max(map(lambda x: len(x), self.verses))
