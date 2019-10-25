@@ -82,14 +82,9 @@ class LSTM_Generator:
                 encoded_seq = pad_sequences(
                     [encoded_seq], maxlen=length, truncating="pre"
                 )
-                seq.append(encoded_seq)
+                seq.append(encoded_seq[0])
         seq = np.array(seq)
-        self.X, self.y = seq[:, 0, :-1], seq[:, 0, -1]
-        print(self.X[100])
-        print(seq[100])
-        # print(self.X[0].shape)
-        # print(self.X.shape)
-        # print(self.y[0])
+        self.X, self.y = seq[:, :-1], seq[:, -1]
         self.y = to_categorical(self.y, num_classes=self.vocab_size)
         self.seq_length = self.X.shape[1]
 
