@@ -58,6 +58,7 @@ class LSTM_Generator:
                     break
             sequence += " " + predWord
             result.append(predWord)
+	    print(result)
         return " ".join(result)
 
     def embed(self):
@@ -112,16 +113,16 @@ class LSTM_Generator:
 
 if __name__ == "__main__":
     model = LSTM_Generator()
-    model.train()
-    # seed = input("Seed word/phrase: ")
-    # gen = model.generate(seed)
-    # print(gen)
+    # model.train()
+    seed = input("Seed word/phrase: ")
+    gen = model.generate(seed)
+    print(gen)
 
     # Try using transformers
     # Prog rock lyrics
     # model.train()
-    gen = model.generate("manifest")
-    print(gen)
+    # gen = model.generate("manifest")
+    # print(gen)
     # model.train()
     # gen = model.generate("manifest")
     # print(gen)
