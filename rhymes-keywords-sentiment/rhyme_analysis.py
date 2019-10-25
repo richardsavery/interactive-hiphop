@@ -46,15 +46,33 @@ class RhymeAnalysis(PhoneticAnalysis):
         return rhyming_words
 
 if __name__ == "__main__":
-    text = open("./redefinition_mosdef.txt", 'r').read()
-    ipa = open("./redefinition_mosdef.txt.ipa", 'r').read()
+    mosdef_text = open("./redefinition_mosdef.txt", 'r').read()
+    mosdef_ipa = open("./redefinition_mosdef.txt.ipa", 'r').read()
 
-    rhyme = RhymeAnalysis(text, ipa)
+    rhyme = RhymeAnalysis(mosdef_text, mosdef_ipa)
     rhyme_schemes = rhyme.get_rhyme_schemes()
 
     # sort rhyme schemes by decreasing number of words in a grouping
     sorted_rhyme_schemes = sorted(rhyme_schemes.items(), key=lambda entry: len(entry[1]), reverse=True)
 
-    for vowel_seq, words in sorted_rhyme_schemes[:10]:
+    print("Re:Definition - Mos Def")
+    for vowel_seq, words in sorted_rhyme_schemes:
+        if len(vowel_seq) < 2 or len(words) < 2:
+            continue
+        print("Words with vowel sequence '{0}'".format(vowel_seq))
+        print(words)
+
+    rakim_text = open("./microphone_fiend.txt", 'r').read()
+    rakim_ipa = open("./microphone_fiend.txt.ipa", 'r').read()
+
+    rhyme2 = RhymeAnalysis(rakim_text, rakim_ipa)
+    rhyme_schemes2 = rhyme2.get_rhyme_schemes()
+
+    sorted_rhyme_schemes2 = sorted(rhyme_schemes2.items(), key=lambda entry: len(entry[1]), reverse=True)
+
+    print("\nMicrophone Fiend - Rakim")
+    for vowel_seq, words in sorted_rhyme_schemes2:
+        if len(vowel_seq) < 2 or len(words) < 2:
+            continue
         print("Words with vowel sequence '{0}'".format(vowel_seq))
         print(words)
