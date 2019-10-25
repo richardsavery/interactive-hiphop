@@ -50,7 +50,10 @@ class LSTM_Generator:
             encoded = pad_sequences(
                 [encoded], maxlen=self.seq_length_pred, truncating="pre"
             )
-            pred = model.predict_classes(encoded, verbose=0)
+            print(encoded.shape)
+            print(encoded[0].shape)
+            print(model.predict(encoded[0]))
+            pred = model.predict_classes(encoded[0], verbose=0)
             predWord = ""
             for word, index in tokenizer.word_index.items():
                 if index == pred:
@@ -58,7 +61,6 @@ class LSTM_Generator:
                     break
             sequence += " " + predWord
             result.append(predWord)
-	    print(result)
         return " ".join(result)
 
     def embed(self):
@@ -83,6 +85,11 @@ class LSTM_Generator:
                 seq.append(encoded_seq)
         seq = np.array(seq)
         self.X, self.y = seq[:, 0, :-1], seq[:, 0, -1]
+        print(self.X[100])
+        print(seq[100])
+        # print(self.X[0].shape)
+        # print(self.X.shape)
+        # print(self.y[0])
         self.y = to_categorical(self.y, num_classes=self.vocab_size)
         self.seq_length = self.X.shape[1]
 
@@ -113,10 +120,12 @@ class LSTM_Generator:
 
 if __name__ == "__main__":
     model = LSTM_Generator()
-    # model.train()
-    seed = input("Seed word/phrase: ")
-    gen = model.generate(seed)
+    model.train()
+    # seed = input("Seed word/phrase: ")
+    gen = model.generate("dank")
     print(gen)
+    # model = load_model("model.h5")
+    # print(model.predict([]))
 
     # Try using transformers
     # Prog rock lyrics
