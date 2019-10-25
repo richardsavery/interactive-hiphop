@@ -10,6 +10,8 @@ from pocketsphinx import AudioFile
 from sys import byteorder
 from array import array
 from struct import pack
+from google.cloud import speech_v1
+from google.cloud.speech_v1 import enums
 
 import pyaudio
 import wave
@@ -74,6 +76,37 @@ class SpeechToText:
             return "Error in Reading File"
         
         return ipa_file_name
+
+    def find_IPA_chars(self, file):
+        "Takes IPA file and finds all unique sounds"
+        if file[-7:] == "IPA.txt":
+            f = open(file, "r")
+            words = f.read()
+            IPA = []
+            for char in words:
+                if char not in IPA and char.isalpha():
+                    IPA.append(char)
+            return IPA
+
+    def most_common_phoneme_in_line(self, file, only_vowels=False):
+        "Finds the most commonly occurring phoneme in a rap line and assumes it is the rhyme of it"
+        ""
+        import collections
+        if file[-7:] == "IPA.txt":
+            f = open(file, "r")
+            lines = f.readlines()
+            for line in lines:
+                d = collections.defaultdict(int)
+                for c in line:
+                    if not only_vowels:
+                        if c.isalpha():
+                            d[c] += 1
+                    else:
+                        if c.isalpha() and c in ["ə", "e", "ɑ", "æ", "ɔ", "ɛ", "ɪ", "ʊ", "u", "i"]:
+                            d[c] += 1
+                print(line[:-2] + ":  " + str(sorted(d.items(), key=lambda x: x[1], reverse=True)[0]))
+
+        pass
 
     def is_silent(self, snd_data):
         "Returns 'True' if below the 'silent' threshold"
@@ -183,6 +216,45 @@ class SpeechToText:
         self.transcribe_audio(path)
         self.write_as_IPA(path)
 
+    def recognize_google(self):
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Speak Anything...")
+            audio = r.listen(source)
+            try:
+                text = r.recognize_google(audio)
+                print("You said \n{}".format(text))
+            except:
+                print("Could not recognize voice")
+
+    def use_gcp(self, file):
+        GOOGLE_CLOUD_SPEECH_CREDENTIALS = r"""{
+            "type": "service_account",
+                "project_id": "srt-editing-1536019242339",
+                "private_key_id": "36d75900a4b92525d507bf52a3203def2878f1db",
+                "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCk6TVCcNTj39MQ\nfxM/v7Rbt1rY6Qv3FfKH5YeH1v2RXw355oId/6ZwWzUyInla+KIb4hThTmq0H44a\nZAfGqbmLKeJSZxEZB3wsRAFv7hDnw1dRuEdR7U+YXuTC/kqZOYepaxVdNj9ibigz\njcjioyq/McXXcNp9ENYZrMzq4GooC24i6WBEOPTvhIxSAKgazqQfVhSzOHhO1w+d\nhxrsGNLuRXkPOOe5M2RGM9RipAZID8JwfccY/iXSs6KXn1HKR3rR7txsDpUkfKsc\n9RTEl+8ffFWjA8FzRgiJ4DxdUz7UW9wyzQeVGG2+S1IwNhefPAuFdU9FiM0g7vpP\nVlzcA2SRAgMBAAECggEAIKD/57h5dujnUwFBpsBgiDEcKYTa2DWgeiEBEvCH1UaQ\ndlyUbCkUHnD9coD9r/E36fpulTG1zRPdQv19yGH2k0FjRVidOm2PtRZzjlj1QVYW\nJdYnTl98+zHzY117FxwZ6nyEip/cJLaU/7ZTA/yyzYeklH8Ay/QT2JqnJOXoOynO\nZgiSMRiJ4a0yp28AxKPKZiYcHT0SzesVnunxry9tU1C+0igku7b4XEh9MKjinEc7\nYypnPsE0Hy2miTMg2k93LeTYGzdN/XcwIvkcpQ8NE6W39lCkv0tYvyxRTuGIwFjk\nsFqargGlFezO3BLPqkjo3cbem23bfhLyFugDCxE07QKBgQDXxeLuH1Y/5UJMb8Zs\nXVOdBji76aeUFQkCTljFg+7Umz+x00IZOAsqgprAwz2cmhbHDrCyQ2ufoLRUvKdQ\nUidyZnjHKfkRiUhZ0OGxLOVqXFxFZX04p3o3XXX+6xjIQPbuQGECkfJKNF219wDI\nNxp1GGDn5kBXqP6U4CUmrpTY0wKBgQDDp9l86QgotOklPRvOaeZd0+hLMpyZEQn6\ntkPIJbV2reA0qx1Ylfi0QsMKKcDjEpA3LIpI30bamzqYpIGM15LOQGIBRxIdRB31\nDrEPP+OYeJoFJPlGrg/teU96wyLMnZae1Y2Ah1FuoLF6pNm140XpIh94wmaMQKvd\n9vqGr31uiwKBgBbrFOR3/aBByJ33zVqbOxNVotcKxVrsNQ3CppksH0UDzGsl5kJp\nen4kay2IT1X/4+V2wPveP2MwHZdWhmr4nun+yltVMPhU3ZN0pVQ9UYzPjJluYzOO\nTmPtEGhoLjSu+ctqmSM9vz90enOmbbXWbH/9e+WFxlXJRGkpuah3KKYzAoGAUPGb\nB5M83eJiZhaO72ledcjaXGnW4XhsIX3QMvhux2eNzxxPqrt4xdKs8AJwG0EtyrWx\njA5bOMtphYbhVcxFnvCB2zd05gitQBnQ5Jcw6H5UcfZm7nfKfRtn50jdl7tGefWt\ncdQJu3PdmPikXRxmatnEHWiHllSXBeBMqvXlNZsCgYB07H/mZRCvVJK1+mtaSA+w\njp1VIbsuouthyrXaA/y4dg+3qdkeAG7p+uGCZjyCnRT7RiDJkh/ioPlnytISk6Ht\nIf5b4jmB04WwVu5EWGJQzRi2toLw2JAD+iUsdrKbON5uaq95ZClNvAeSCjA82Y5T\n/nRpOcwiQ8E68/bJXq3IAQ==\n-----END PRIVATE KEY-----\n",
+                "client_email": "interactive-hiphop@srt-editing-1536019242339.iam.gserviceaccount.com",
+                "client_id": "109455511731968078576",
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/interactive-hiphop%40srt-editing-1536019242339.iam.gserviceaccount.com"
+                }
+            """
+        r = sr.Recognizer()
+        with sr.AudioFile(file) as source:
+            audio_fr = r.record(source)  # read the entire audio file
+        try:
+            print("Google Cloud Speech recognition for \"numero\" with different sets of preferred phrases:")
+            print(r.recognize_google_cloud(audio_fr, credentials_json=GOOGLE_CLOUD_SPEECH_CREDENTIALS, preferred_phrases=["noomarow"]))
+            print(r.recognize_google_cloud(audio_fr, credentials_json=GOOGLE_CLOUD_SPEECH_CREDENTIALS, preferred_phrases=["newmarrow"]))
+        except sr.UnknownValueError:
+            print("Google Cloud Speech could not understand audio")
+        except sr.RequestError as e:
+            print("Could not request results from Google Cloud Speech service; {0}".format(e))
+
+
+
     # def text_to_ipa(self, path):
     #     # Use this function if you have a txt file that's in words but need IPA
     #     f = open(path, 'r')
@@ -191,3 +263,38 @@ class SpeechToText:
 
     # if __name__ == "__main__":
     #     transcribe_audio("sample1.wav")
+    # def sample_recognize(self, local_file_path):
+    #     """
+    #     Transcribe a short audio file using synchronous speech recognition
+
+    #     Args:
+    #     local_file_path Path to local audio file, e.g. /path/audio.wav
+    #     """
+
+    #     client = speech_v1.SpeechClient()
+
+    #     # local_file_path = 'resources/brooklyn_bridge.raw'
+
+    #     # The language of the supplied audio
+    #     language_code = "en-US"
+
+    #     # Sample rate in Hertz of the audio data sent
+    #     sample_rate_hertz = 16000
+
+    #     # Encoding of audio data sent. This sample sets this explicitly.
+    #     # This field is optional for FLAC and WAV audio formats.
+    #     encoding = enums.RecognitionConfig.AudioEncoding.LINEAR16
+    #     config = {
+    #         "language_code": language_code,
+    #         "sample_rate_hertz": sample_rate_hertz,
+    #         "encoding": encoding,
+    #     }
+    #     with io.open(local_file_path, "rb") as f:
+    #         content = f.read()
+    #     audio = {"content": content}
+
+    #     response = client.recognize(config, audio)
+    #     for result in response.results:
+    #         # First alternative is the most probable result
+    #         alternative = result.alternatives[0]
+    #         print(u"Transcript: {}".format(alternative.transcript))
