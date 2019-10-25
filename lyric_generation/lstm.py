@@ -52,8 +52,8 @@ class LSTM_Generator:
             )
             print(encoded.shape)
             print(encoded[0].shape)
-            print(model.predict(encoded[0]))
-            pred = model.predict_classes(encoded[0], verbose=0)
+            #print(model.predict(encoded))
+            pred = model.predict_classes(encoded, verbose=0)
             predWord = ""
             for word, index in tokenizer.word_index.items():
                 if index == pred:
@@ -61,6 +61,7 @@ class LSTM_Generator:
                     break
             sequence += " " + predWord
             result.append(predWord)
+            print(result)
         return " ".join(result)
 
     def embed(self):
@@ -109,13 +110,13 @@ class LSTM_Generator:
         )
         callbacks_list = [checkpoint]
         self.model.fit(
-            self.X, self.y, batch_size=128, epochs=100, callbacks=callbacks_list
+            self.X, self.y, batch_size=128, epochs=5, callbacks=callbacks_list
         )
 
 
 if __name__ == "__main__":
     model = LSTM_Generator()
-    model.train()
+    #model.train()
     # seed = input("Seed word/phrase: ")
     gen = model.generate("dank")
     print(gen)
