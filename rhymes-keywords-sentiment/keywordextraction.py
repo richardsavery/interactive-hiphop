@@ -4,9 +4,12 @@ import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 from spacy.tokenizer import Tokenizer
 from abc import ABC, abstractmethod
+import time
 
+t = time.time()
 # If this errors, run "python -m spacy download en_core_web_md"
 nlp = spacy.load("en_core_web_md")
+print(time.time() - t)
 
 class KeywordExtractor:
     """Wrapper class for extracting keywords from text"""
@@ -183,10 +186,11 @@ if __name__ == "__main__":
         song_lyrics = f.read().lower()
     km = KeywordExtractor(model="textrank")
 
-    extra_stop_words = ["n't", "'s", "'m", "``", "'", '"', '.', ","]
+    extra_stop_words = ["n't", "'s", "'m", "``", "'", '"', '.', ",", "ai", "'re", "'ll"]
     km.set_stopwords(extra_stop_words)
 
     km.analyze(song_lyrics)
+    print("Keywords for verse:")
     print(km.get_keywords(10))
 
     km2 = KeywordExtractor(model="textrank")
@@ -194,8 +198,24 @@ if __name__ == "__main__":
 
     s1 = "This is a test of the model."
     km2.analyze(s1)
+    print("Keywords for '{0}':".format(s1))
     print(km2.get_keywords(5))
 
     s2 = "This is also a test of the keyword model, but with new words."
     km2.analyze(s2)
+    print("Keywords for '{0}':".format(s2))
     print(km2.get_keywords(5))
+
+    s3 = open("./microphone_fiend.txt", 'r').read().lower()
+    km3 = KeywordExtractor(model="textrank")
+    km3.set_stopwords(extra_stop_words)
+    km3.analyze(s3)
+    print("Keywords for Microphone Fiend by Rakim:")
+    print(km3.get_keywords(10))
+
+    s4 = open("./redefinition_mosdef.txt", 'r').read().lower()
+    km4 = KeywordExtractor(model="textrank")
+    km4.set_stopwords(extra_stop_words)
+    km4.analyze(s4)
+    print("Keywords for Mos Def's verse on Re:Definition:")
+    print(km4.get_keywords(10))

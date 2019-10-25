@@ -48,7 +48,7 @@ class PhoneticAnalysis:
                     self.word_ends_idx.append(i-1)
 
                     self.words.append(word)
-                    if new_word_vowels[-1] == ":":
+                    if new_word_vowels and new_word_vowels[-1] == ":":
                         new_word_vowels = new_word_vowels[:-1]
                     self.vowels_by_word.append(new_word_vowels)
                     new_word_vowels = ""
