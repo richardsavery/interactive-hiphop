@@ -51,6 +51,10 @@ if __name__ == "__main__":
 
     rhyme = RhymeAnalysis(text, ipa)
     rhyme_schemes = rhyme.get_rhyme_schemes()
-    for key in rhyme_schemes:
-        print("Words with vowel sequence '{0}'".format(key))
-        print(rhyme_schemes[key])
+
+    # sort rhyme schemes by decreasing number of words in a grouping
+    sorted_rhyme_schemes = sorted(rhyme_schemes.items(), key=lambda entry: len(entry[1]), reverse=True)
+
+    for vowel_seq, words in sorted_rhyme_schemes[:10]:
+        print("Words with vowel sequence '{0}'".format(vowel_seq))
+        print(words)
