@@ -19,10 +19,10 @@ def print_spacer(text):
 
 def main():
     # get input lyrics text from audio
-    # print_spacer("Speech To Text")
-    # audio_path = os.path.join("data", "sample1.wav")
-    # speech_to_text = SpeechToText()
-    # input_lyrics_file_path = speech_to_text.transcribe_audio(audio_path)
+    print_spacer("Speech To Text")
+    audio_path = os.path.join("data", "sample1.wav")
+    speech_to_text = SpeechToText()
+    input_lyrics_file_path = speech_to_text.transcribe_audio(audio_path)
 
     input_lyrics_file_path = os.path.join(os.getcwd(), 'speech_to_text', 'sample1.txt')
 

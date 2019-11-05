@@ -9,12 +9,12 @@ from keras.callbacks import ModelCheckpoint
 import pickle
 import os
 
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import OneHotEncoder
+# from sklearn.preprocessing import LabelEncoder
+# from sklearn.preprocessing import OneHotEncoder
 from keras.preprocessing.text import Tokenizer
 from keras.utils import to_categorical
 
-from data_util import get_verses
+from .data_util import get_verses
 
 
 class LSTM_Generator:
