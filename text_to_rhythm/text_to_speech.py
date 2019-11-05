@@ -1,18 +1,18 @@
 import os
 import math
 import pyttsx3
-import aifc
-from pydub import AudioSegment
+# import aifc
+# from pydub import AudioSegment
 import soundfile as sf
-import sounddevice as sd
-import audioread
+# import sounddevice as sd
+# import audioread
 import numpy as np
 from scipy.io.wavfile import write
 import random
 
-import parselmouth
+# import parselmouth
 import matplotlib.pyplot as plt
-import seaborn as sns
+# import seaborn as sns
 import librosa, librosa.display
 # from pydub.silence import split_on_silence
 # import fleep
