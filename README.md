@@ -12,3 +12,4 @@ pip install tensorflow --ignore-installed
 pip install -r ./requirements.txt
 pip install wrapt==1.10.0 --ignore-installed
 python ./main.py
+```
