@@ -11,3 +11,7 @@ nltk
 tensorflow
 keras
 markovify
+pyttsx3
+soundfile
+matplotlib
+librosa
