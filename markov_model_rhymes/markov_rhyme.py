@@ -7,9 +7,9 @@ class MarkovRhymeGenerator:
         self._corpus_words = set(corpus.replace('\n', ' ').split(' '))
         self._forward_model = self._initialize_forward_model(corpus)
         self._backward_model = self._initialize_backward_model(corpus)
-        
+
     def _initialize_forward_model(self, corpus):
-            return markovify.Text(corpus, state_size=3, well_formed=False)
+        return markovify.Text(corpus, state_size=3, well_formed=False)
 
     def _initialize_backward_model(self, corpus):
         reversed_lines = [' '.join(line.split(' ')[::-1]) for line in corpus.split('\n')]
