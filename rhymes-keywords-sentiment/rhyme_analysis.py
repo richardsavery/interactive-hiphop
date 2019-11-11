@@ -4,10 +4,9 @@ from collections import defaultdict
 class RhymeAnalysis(PhoneticAnalysis):
     def __init__(self, text, ipa_text):
         super().__init__(text, ipa_text)
-        self.clean_text()
-        self.ipa_words = self.ipa_text.split()
-        self.words_orig = self.text.split()
-        self.compute_vowel_representation()
+        # self.clean_text()
+        # self.words_orig = self.text.split()
+        # self.compute_vowel_representation()
 
     def get_rhyme_schemes_for_all_vowels(self):
         rhymes = {}
@@ -33,7 +32,7 @@ class RhymeAnalysis(PhoneticAnalysis):
                 end += 1
 
             word = self.ipa_text[start: end+1]#.strip()
-            rhyming_words.append(self.words_orig[self.ipa_words.index(word)])
+            rhyming_words.append(self.words_orig[self.words.index(word)])
         
         return set(rhyming_words)
     
@@ -94,14 +93,10 @@ def run_test():
     rhyme_schemes = rhyme.get_rhyme_schemes()
 
     # sort rhyme schemes by decreasing number of words in a grouping
-    sorted_rhyme_schemes = sorted(rhyme_schemes.items(), key=lambda entry: len(entry[1]), reverse=True)
+    rhyme_schemes = sort_rhyme_scheme_dict(rhyme_schemes)
 
     print("Re:Definition - Mos Def")
-    for vowel_seq, words in sorted_rhyme_schemes:
-        if len(vowel_seq) < 2 or len(words) < 2:
-            continue
-        print("Words with vowel sequence '{0}'".format(vowel_seq))
-        print(words)
+    print_rhyme_schemes(rhyme_schemes)
 
     rakim_text = open("./microphone_fiend.txt", 'r').read()
     rakim_ipa = open("./microphone_fiend.txt.ipa", 'r').read()
@@ -109,7 +104,7 @@ def run_test():
     rhyme2 = RhymeAnalysis(rakim_text, rakim_ipa)
     rhyme_schemes2 = rhyme2.get_rhyme_schemes()
 
-    sorted_rhyme_schemes2 = sorted(rhyme_schemes2.items(), key=lambda entry: len(entry[1]), reverse=True)
+    rhyme_schemes2 = sort_rhyme_scheme_dict(rhyme_schemes2)
 
     print("\nMicrophone Fiend - Rakim")
     print_rhyme_schemes(rhyme_schemes2)
