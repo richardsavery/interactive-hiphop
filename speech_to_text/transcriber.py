@@ -10,8 +10,8 @@ from pocketsphinx import AudioFile
 from sys import byteorder
 from array import array
 from struct import pack
-from google.cloud import speech_v1
-from google.cloud.speech_v1 import enums
+# from google.cloud import speech_v1
+# from google.cloud.speech_v1 import enums
 
 import pyaudio
 import wave

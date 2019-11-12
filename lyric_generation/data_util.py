@@ -1,9 +1,9 @@
 from os import getcwd
-from os.path import dirname, join
+from os.path import dirname, join, realpath
 import json
 import re
 
-DATA_PATH = join(join(dirname(getcwd()), "data"), "verses.json")
+DATA_PATH = join(dirname(realpath(__file__)), "..", "data", "verses.json")
 START_VERSE_TOKEN = " <startVerse> "
 START_LINE_TOKEN = " <startLine> "
 END_VERSE_TOKEN = " <endVerse> "

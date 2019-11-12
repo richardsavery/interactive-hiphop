@@ -1,6 +1,6 @@
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords 
-from pandas import read_excel
+# from pandas import read_excel
 import pickle
 import sys
 import os
@@ -15,6 +15,11 @@ class SentimentAnalyzer():
         scores = self.bag_of_words(sentiment_lexicon_map, song_words)
         return scores['Positive']
 
+    def get_negativity(self, song_words):
+        sentiment_lexicon_map = self.reader.get_harvard_lexicon()
+        scores = self.bag_of_words(sentiment_lexicon_map, song_words)
+        return (scores['Negativ'])
+
     def bag_of_words(self, sentiment_lexicon_map, words):
         sentiments = sentiment_lexicon_map.keys()
         scores = {s: 0 for s in sentiments}
@@ -26,7 +31,11 @@ class SentimentAnalyzer():
                     scores[sentiment] += 1
 
         total_scored_words = sum(scores.values())
-        scaled_scores = {key: val / total_scored_words for key, val in scores.items()}
+        
+        if total_scored_words == 0:
+            scaled_scores = {key: 0 for key, _ in scores.items()}
+        else:
+            scaled_scores = {key: val / total_scored_words for key, val in scores.items()}
         
         return scaled_scores
 
