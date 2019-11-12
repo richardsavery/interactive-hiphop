@@ -6,7 +6,7 @@ import pydub
 import pyaudio
 import eng_to_ipa as ipa
 import speech_recognition as sr
-from pocketsphinx import AudioFile
+# from pocketsphinx import AudioFile
 from sys import byteorder
 from array import array
 from struct import pack
