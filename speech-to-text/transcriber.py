@@ -26,7 +26,8 @@ class SpeechToText:
     def __init__(self, audiofile=None):
         self.audiofile = audiofile
     
-    def transcribe_audio(self, audio_file=None):
+    def transcribe_audio_file(self, audio_file=None):
+        # this transcribes an existing audio file
         if audio_file == None:
             print("Invalid Param, Terminating...")
             return
@@ -41,8 +42,8 @@ class SpeechToText:
         r = sr.Recognizer()
         with sr.AudioFile(audio_file) as source:
             audio = r.record(source)
-        print("Sphinx thinks you said \n\n")
-        returnedSpeech = str(r.recognize_sphinx(audio))
+        print("Google thinks you said \n\n")
+        returnedSpeech = str(r.recognize_google(audio))
 
         file_name = audio_file[:-4] + ".txt"
         audio_text_file = open(file_name, "w")
@@ -57,6 +58,7 @@ class SpeechToText:
         return file_name
         
     def write_as_IPA(self, file_name):
+        # this writes a text file as another IPA text file
         if file_name[-4:] == ".wav":
             file_name = file_name[:-4] + ".txt"
 
@@ -105,7 +107,6 @@ class SpeechToText:
                         if c.isalpha() and c in ["ə", "e", "ɑ", "æ", "ɔ", "ɛ", "ɪ", "ʊ", "u", "i"]:
                             d[c] += 1
                 print(line[:-2] + ":  " + str(sorted(d.items(), key=lambda x: x[1], reverse=True)[0]))
-
         pass
 
     def is_silent(self, snd_data):
@@ -213,7 +214,7 @@ class SpeechToText:
         wf.writeframes(data)
         wf.close()
 
-        self.transcribe_audio(path)
+        self.transcribe_audio_file(path)
         self.write_as_IPA(path)
 
     def recognize_google(self):
@@ -262,7 +263,7 @@ class SpeechToText:
 
 
     # if __name__ == "__main__":
-    #     transcribe_audio("sample1.wav")
+    #     transcribe_audio_file("sample1.wav")
     # def sample_recognize(self, local_file_path):
     #     """
     #     Transcribe a short audio file using synchronous speech recognition
