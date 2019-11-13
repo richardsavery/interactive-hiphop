@@ -3,7 +3,8 @@ from os.path import dirname, join
 import json
 import re
 
-DATA_PATH = join(join(dirname(getcwd()), "data"), "verses.json")
+# DATA_PATH = join(join(dirname(getcwd()), "data"), "verses.json")
+DATA_PATH = "/Users/brianmodel/Desktop/gatech/VIP/interactive-hiphop/data/verses.json"
 START_VERSE_TOKEN = " <startVerse> "
 START_LINE_TOKEN = " <startLine> "
 END_VERSE_TOKEN = " <endVerse> "
