@@ -125,6 +125,6 @@ dmypy.json
 
 # Custom
 *.DS_Store
-.icloud
+*.icloud
 .vscode/
 *.code-workspace

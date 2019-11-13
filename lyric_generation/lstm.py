@@ -9,18 +9,20 @@ from keras.callbacks import ModelCheckpoint
 import pickle
 import os
 
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import OneHotEncoder
+# from sklearn.preprocessing import LabelEncoder
+# from sklearn.preprocessing import OneHotEncoder
 from keras.preprocessing.text import Tokenizer
 from keras.utils import to_categorical
 
-from data_util import get_verses
+from .data_util import get_verses
 
+curr_directory = os.path.dirname(os.path.realpath(__file__))
 
 class LSTM_Generator:
     def __init__(self):
         self.verses = get_verses()
         self.seq_length_pred = 10
+        self.model_path = os.path.join(curr_directory, "model.h5")
 
     def train(self):
         self.max_len = max(map(lambda x: len(x), self.verses))
@@ -37,11 +39,12 @@ class LSTM_Generator:
         print("----------------------------------------")
         print("Model Trained")
         print("----------------------------------------")
-        self.model.save("model.h5")
+        self.model.save(self.model_path)
 
     def generate(self, seed, length=100):
-        model = load_model("model.h5")
-        tokenizer = pickle.load(open("tokenizer.pkl", "rb"))
+        model = load_model(self.model_path)
+        tokenizer_path = os.path.join(curr_directory, "tokenizer.pkl")
+        tokenizer = pickle.load(open(tokenizer_path, "rb"))
         sequence = seed
         result = []
 
