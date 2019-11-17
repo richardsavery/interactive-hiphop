@@ -50,17 +50,14 @@ class LSTM_Generator:
         result = []
 
         while not result or result[-1] != "endverse":
-            encoded = tokenizer.texts_to_sequences([sequence])[0]
+            encoded = tokenizer.texts_to_sequences([sequence])
             encoded = pad_sequences(
-                [encoded], maxlen=self.seq_length_pred, truncating="pre"
+                encoded, maxlen=self.seq_length_pred, truncating="pre"
             )
-            pred = model.predict_classes(encoded, verbose=0)
-            predWord = ""
-            for word, index in tokenizer.word_index.items():
-                if index == pred:
-                    predWord = word
-                    break
-            sequence += " " + predWord
+            pred = model.predict(encoded[0], verbose=0)[0]
+            pred_index = np.argmax(pred)
+            predWord = tokenizer.index_word[pred_index]
+            sequence += " " + tokenizer.index_word[pred_index]
             result.append(predWord)
         return " ".join(result)
 
@@ -78,14 +75,13 @@ class LSTM_Generator:
         for i, verse in enumerate(tokenized):
             for j in range(1, len(verse)):
                 verse_slice = verse[: j + 1]
-                padded = pad_sequences(
-                    [verse_slice], maxlen=self.seq_length_pred, truncating="pre"
-                )
+                padded = pad_sequences([verse_slice], maxlen=length, truncating="pre")
                 seq.append(padded[0])
         # for i, verse in enumerate(tokenized):
         #     for j in range(len(verse) - length + 1):
         #         seq.append(verse[j : j + length])
         seq = np.array(seq)
+        print(seq)
         self.X, self.y = seq[:, :-1], seq[:, -1]
         self.y = to_categorical(self.y, num_classes=self.vocab_size)
         self.seq_length = self.X.shape[1]
@@ -127,6 +123,7 @@ def test_embed():
     model = LSTM_Generator()
     model.embed()
     print(model.X)
+    print(model.y)
 
 
 def test_model_basic():
@@ -136,5 +133,5 @@ def test_model_basic():
 
 
 if __name__ == "__main__":
-    test_embed()
-    # test_model_generation()
+    # test_embed()
+    test_model_generation()
