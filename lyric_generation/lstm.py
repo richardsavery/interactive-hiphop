@@ -54,7 +54,7 @@ class LSTM_Generator:
             encoded = pad_sequences(
                 encoded, maxlen=self.seq_length_pred, truncating="pre"
             )
-            pred = model.predict(encoded[0], verbose=0)[0]
+            pred = model.predict(encoded, verbose=0)[0]
             pred_index = np.argmax(pred)
             predWord = tokenizer.index_word[pred_index]
             sequence += " " + tokenizer.index_word[pred_index]
@@ -91,7 +91,11 @@ class LSTM_Generator:
 
         self.model = Sequential()
         embedding_layer = Embedding(
-            self.vocab_size, EMBEDDING_DIM, input_length=self.seq_length, trainable=True
+            self.vocab_size,
+            EMBEDDING_DIM,
+            input_length=self.seq_length,
+            trainable=True,
+            mask_zero=True,
         )
         self.model.add(embedding_layer)
         self.model.add(LSTM(100, return_sequences=True))
