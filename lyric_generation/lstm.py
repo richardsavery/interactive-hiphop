@@ -14,14 +14,15 @@ import os
 from keras.preprocessing.text import Tokenizer
 from keras.utils import to_categorical
 
-from .data_util import get_verses
+from data_util import get_verses
 
 curr_directory = os.path.dirname(os.path.realpath(__file__))
+
 
 class LSTM_Generator:
     def __init__(self):
         self.verses = get_verses()
-        self.seq_length_pred = 10
+        self.seq_length_pred = 20
         self.model_path = os.path.join(curr_directory, "model.h5")
 
     def train(self):
@@ -75,8 +76,15 @@ class LSTM_Generator:
         length = self.seq_length_pred + 1
         seq = []
         for i, verse in enumerate(tokenized):
-            for j in range(len(verse) - length + 1):
-                seq.append(verse[j : j + length])
+            for j in range(1, len(verse)):
+                verse_slice = verse[: j + 1]
+                padded = pad_sequences(
+                    [verse_slice], maxlen=self.seq_length_pred, truncating="pre"
+                )
+                seq.append(padded[0])
+        # for i, verse in enumerate(tokenized):
+        #     for j in range(len(verse) - length + 1):
+        #         seq.append(verse[j : j + length])
         seq = np.array(seq)
         self.X, self.y = seq[:, :-1], seq[:, -1]
         self.y = to_categorical(self.y, num_classes=self.vocab_size)
@@ -103,21 +111,30 @@ class LSTM_Generator:
         )
         callbacks_list = [checkpoint]
         self.model.fit(
-            self.X, self.y, batch_size=128, epochs=100, callbacks=callbacks_list
+            self.X, self.y, batch_size=128, epochs=1, callbacks=callbacks_list
         )
 
 
-if __name__ == "__main__":
+def test_model_generation():
     model = LSTM_Generator()
     # seed = input("Seed word/phrase: ")
-    # gen = model.generate(seed)
-    # print(gen)
-
-    # Try using transformers
-    # Prog rock lyrics
-    # model.train()
-    gen = model.generate("manifest")
+    seed = "manifest"
+    gen = model.generate(seed)
     print(gen)
-    # model.train()
-    # gen = model.generate("manifest")
-    # print(gen)
+
+
+def test_embed():
+    model = LSTM_Generator()
+    model.embed()
+    print(model.X)
+
+
+def test_model_basic():
+    model = LSTM_Generator()
+    tokenizer = pickle.load(open(tokenizer_path, "rb"))
+    model.create_model()
+
+
+if __name__ == "__main__":
+    test_embed()
+    # test_model_generation()
