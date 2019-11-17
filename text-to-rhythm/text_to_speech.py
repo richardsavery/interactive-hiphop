@@ -64,25 +64,41 @@ def text_to_rhythm(text, bpm):
     fs = tokenized_audio[0][1]
     fpb = (60 * fs) / bpm
 
-    num_flows = random.randint(1, int((len(tokenized_audio) / 6)))
+    num_flows = random.randint(1, int((len(tokenized_audio) / 12)))
     flow_groups = np.array_split(np.asarray(tokenized_audio), num_flows)
+    print("DIVISIONS: ", [len(x) for x in flow_groups])
     rhythmic_audio = []
     for words in flow_groups:
         lengths = [len(x) for x in words]
         average = sum(lengths) / len(lengths)
         possible_values = set([note_values[2]])
         for value in note_values:
-            if abs(value * fpb - average) / average > .9:
+            if abs(value * fpb - average) / average > .95:
                 possible_values.add(value)
         value = random.choice(list(possible_values))
         rhythmic_audio.extend(generic_flow(words, bpm, (value * fpb), adapt=True))
         rhythmic_audio.extend(np.zeros(int(math.ceil(len(rhythmic_audio)/fpb)*fpb - len(rhythmic_audio))))
+    
+    # rhythmic_audio = punctuate(rhythmic_audio, bpm, fpb)
+
     sf.write(str(bpm) + ".wav" , rhythmic_audio, fs)
+
+def punctuate(audio, bpm, fpb):
+    print("LENGTH", len(audio))
+
+    for i in range(int(len(audio)/fpb)):
+        print(i*fpb)
+        if i % 16 == 15:
+            print("empty beat")
+            audio = np.insert(audio, int(i*fpb), np.zeros(int(fpb), dtype=int))
+    return audio
 
 """
 Helper method to stretch/compress words to a given length
 """
 def change_duration(word, length):
+    if length > len(word):
+        word = np.append(word, np.zeros(int((length - len(word))/2), dtype=int))
     return librosa.effects.time_stretch(word, len(word) / length)
 
 """
@@ -113,6 +129,8 @@ def adapt_quarter_flow(tokenized_audio, bpm):
         data = np.append(data, np.zeros(int((beats*fpb) - len(data)), dtype=int))
         rhythmic_audio.extend(data)
     return rhythmic_audio
+
+
 
 
 """
@@ -168,8 +186,11 @@ def concatenate_segments(x, onset_samples, pad_duration=0.500):
         for i in onset_samples
     ])
 
+# text_to_rhythm("I was a fiend, before I had been a teen, I melted microphones instead of cones of ice cream, music orientaded so when hip hop was originated, fitted like pieces of puzzles, complicated", 90)
 
-text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 120)
+text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 90)
+
+# text_to_rhythm("I'm a robot that raps, when I can't I bust caps, Ishan likes to program apps, and his ripped jeans always slap", 90)
 
 def draw_spectrogram(spectrogram, dynamic_range=70):
     X, Y = spectrogram.x_grid(), spectrogram.y_grid()
