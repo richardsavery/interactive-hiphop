@@ -21,15 +21,17 @@ note_values = [1/4, 1/3, 1/2, 2/3, 1]
 
 engine = pyttsx3.init()
 
-# voices = engine.getProperty('voices')
-# for voice in voices:
-#     print("Voice:")
-#     print(" - ID: %s" % voice.id)
-#     print(" - Name: %s" % voice.name)
-#     print(" - Languages: %s" % voice.languages)
-#     print(" - Gender: %s" % voice.gender)
-#     print(" - Age: %s" % voice.age)
 engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
+
+def print_voices():
+    voices = engine.getProperty('voices')
+    for voice in voices:
+        print("Voice:")
+        print(" - ID: %s" % voice.id)
+        print(" - Name: %s" % voice.name)
+        print(" - Languages: %s" % voice.languages)
+        print(" - Gender: %s" % voice.gender)
+        print(" - Age: %s" % voice.age)
 
 def say_phrase(text):
     engine.say(text)
@@ -48,7 +50,7 @@ def save_utterance(text, filename):
     engine.save_to_file(text, filename)
 
 def read_aiff(filename):
-    print("reading " + filename)z
+    print("reading " + filename)
     data, fs = sf.read(filename)
     return (data, fs)
 
@@ -127,6 +129,12 @@ def generic_flow(tokenized_audio, bpm, length, adapt=True):
         rhythmic_audio.extend(change_duration(data, duration*length))
     return rhythmic_audio
 
+
+"""
+old flows which can be simulated by passing in the correct value to 
+generic_flow
+
+"""
 def adapt_quarter_flow(tokenized_audio, bpm):
     fs = tokenized_audio[0][1]
     rhythmic_audio = []
@@ -141,9 +149,6 @@ def adapt_quarter_flow(tokenized_audio, bpm):
         data = np.append(data, np.zeros(int((beats*fpb) - len(data)), dtype=int))
         rhythmic_audio.extend(data)
     return rhythmic_audio
-
-
-
 
 """
 A flow which rounds word length to the nearest sixteenth then adds them up
@@ -179,42 +184,11 @@ def adapt_sixteenth_flow(tokenized_audio, bpm):
         rhythmic_audio.extend(data)
     return rhythmic_audio
 
-
 """
-Testing Librosa's Onset Detection
+Uncomment a line for quick testing
 """
-def quantize_syllables(tokenized_audio, bpm):
-    test_frames, fs = tokenized_audio[1]
-    print("length", len(test_frames))
-    onset_frames = librosa.onset.onset_detect(test_frames, sr=fs, hop_length=5)
-    print(onset_frames) # frame numbers of estimated onsets
-
-def concatenate_segments(x, onset_samples, pad_duration=0.500):
-    """Concatenate segments into one signal."""
-    silence = numpy.zeros(int(pad_duration*sr)) # silence
-    frame_sz = min(numpy.diff(onset_samples))   # every segment has uniform frame size
-    return numpy.concatenate([
-        numpy.concatenate([x[i:i+frame_sz], silence]) # pad segment with silence
-        for i in onset_samples
-    ])
-
 # text_to_rhythm("I was a fiend, before I had been a teen, I melted microphones instead of cones of ice cream, music orientaded so when hip hop was originated, fitted like pieces of puzzles, complicated", 90)
 
 text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 90)
 # say_phrase("Testing the text to speech")
 # text_to_rhythm("I'm a robot that raps, when I can't I bust caps, Ishan likes to program apps, and his ripped jeans always slap", 90)
-
-def draw_spectrogram(spectrogram, dynamic_range=70):
-    X, Y = spectrogram.x_grid(), spectrogram.y_grid()
-    sg_db = 10 * np.log10(spectrogram.values)
-    plt.pcolormesh(X, Y, sg_db, vmin=sg_db.max() - dynamic_range, cmap='afmhot')
-    plt.ylim([spectrogram.ymin, spectrogram.ymax])
-    plt.xlabel("time [s]")
-    plt.ylabel("frequency [Hz]")
-
-def draw_intensity(intensity):
-    plt.plot(intensity.xs(), intensity.values.T, linewidth=3, color='w')
-    plt.plot(intensity.xs(), intensity.values.T, linewidth=1)
-    plt.grid(False)
-    plt.ylim(0)
-    plt.ylabel("intensity [dB]")
