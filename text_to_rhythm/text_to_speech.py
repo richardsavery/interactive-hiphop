@@ -20,6 +20,15 @@ import librosa, librosa.display
 note_values = [1/4, 1/3, 1/2, 2/3, 1]
 
 engine = pyttsx3.init()
+
+# voices = engine.getProperty('voices')
+# for voice in voices:
+#     print("Voice:")
+#     print(" - ID: %s" % voice.id)
+#     print(" - Name: %s" % voice.name)
+#     print(" - Languages: %s" % voice.languages)
+#     print(" - Gender: %s" % voice.gender)
+#     print(" - Age: %s" % voice.age)
 engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
 
 def say_phrase(text):
@@ -39,7 +48,7 @@ def save_utterance(text, filename):
     engine.save_to_file(text, filename)
 
 def read_aiff(filename):
-    print("reading " + filename)
+    print("reading " + filename)z
     data, fs = sf.read(filename)
     return (data, fs)
 
@@ -57,6 +66,9 @@ def text_to_rhythm(text, bpm):
     # numeric = lambda x, y: int(x[:-4]) > int(y[:-4])
     parseInt = lambda x: int(x[:-5])
     #read files
+
+    print(os.listdir("./split_audio"))
+
     files = [f for f in os.listdir(directory) if f.endswith(".aiff")]
     for file in sorted(files, key=parseInt):
         tokenized_audio.append(read_aiff(os.path.join(directory, file)))
@@ -189,7 +201,7 @@ def concatenate_segments(x, onset_samples, pad_duration=0.500):
 # text_to_rhythm("I was a fiend, before I had been a teen, I melted microphones instead of cones of ice cream, music orientaded so when hip hop was originated, fitted like pieces of puzzles, complicated", 90)
 
 text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 90)
-
+# say_phrase("Testing the text to speech")
 # text_to_rhythm("I'm a robot that raps, when I can't I bust caps, Ishan likes to program apps, and his ripped jeans always slap", 90)
 
 def draw_spectrogram(spectrogram, dynamic_range=70):
