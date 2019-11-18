@@ -6,7 +6,7 @@ import pydub
 import pyaudio
 import eng_to_ipa as ipa
 import speech_recognition as sr
-from pocketsphinx import AudioFile
+# from pocketsphinx import AudioFile
 from sys import byteorder
 from array import array
 from struct import pack
@@ -23,8 +23,9 @@ RATE = 44100
 
 class SpeechToText:
 
-    def __init__(self, audiofile=None):
-        self.audiofile = audiofile
+    def __init__(self, microphone=None):
+        self.found_invalid = False
+        self.microphone = None
     
     def transcribe_audio_file(self, audio_file=None):
         # this transcribes an existing audio file
@@ -42,20 +43,26 @@ class SpeechToText:
         r = sr.Recognizer()
         with sr.AudioFile(audio_file) as source:
             audio = r.record(source)
-        print("Google thinks you said \n\n")
-        returnedSpeech = str(r.recognize_google(audio))
+        print("Google thinks you said \n")
 
+        try:
+            returnedSpeech = str(r.recognize_google(audio))
+            self.found_invalid = False
+        except:
+            print("Unidentified token in ", audio_file)
+            returnedSpeech = ""
+            self.found_invalid = True
         file_name = audio_file[:-4] + ".txt"
-        audio_text_file = open(file_name, "w")
-        audio_text_file.write(returnedSpeech)
-        audio_text_file.close()
+        if not self.found_invalid:
+            audio_text_file = open(file_name, "a")
+            audio_text_file.write(returnedSpeech)
+            audio_text_file.close()
 
         wordsList = returnedSpeech.split()
         print(returnedSpeech)
-        print("\n")
         print(wordsList)
         # print("predicted loacation of start ", float(wordsList.index("the")) * 0.3)
-        return file_name
+        return file_name, wordsList
         
     def write_as_IPA(self, file_name):
         # this writes a text file as another IPA text file

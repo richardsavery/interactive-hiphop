@@ -5,6 +5,7 @@ import pydub
 import librosa
 import threading
 import speech_recognition as sr
+import transcriber as ts
 
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
@@ -43,12 +44,6 @@ def split_on_onset(fname):
     librosa.output.write_wav('{}_chunks/chunk{}.wav'.format(fname, len(frames) - 1), last_chunk, sr)
     return chunk_dir
 
-# if __name__ == '__main__':
-#     fname = sys.argv[1]
-#     start = time.time()
-#     split_on_onset(fname)
-#     print('time taken={}'.format(time.time() - start))
-
 def split(fname):
     sound_file = AudioSegment.from_wav(fname)
     audio_chunks = split_on_silence(sound_file, 
@@ -58,12 +53,39 @@ def split(fname):
         # consider it silent if quieter than -16 dBFS
         silence_thresh=-35
     )
-    print(audio_chunks)
+
+    # makes folder to hold chunks
     newname = fname[:-4] + "_chunks"
-    os.mkdir(newname)
+    try:
+        os.mkdir(newname)
+    except:
+        print("file exists already.")
 
+    # writes chunked audio files into folder
     for i, chunk in enumerate(audio_chunks):
-
-        out_file = newname + "/chunk{0}.wav".format(i)
-        print("exporting", out_file)
+        out_file = newname + "/{0}.wav".format(i)
         chunk.export(out_file, format="wav")
+
+
+if __name__ == '__main__':
+    fname = sys.argv[1]
+    start = time.time()
+    split(fname)
+    mypath = fname[:-4] + "_chunks"
+    dir_wav = os.listdir(mypath)
+    
+    # sorts chunked files in order
+    dir_wav.sort(key=lambda x: int(x[:-4]))
+
+    words = []
+
+    # TODO: threading for files?
+    # right now, just reads them in a for loop
+    # also writes a single text file per chunk
+
+    # for wav in dir_wav:
+    #     STT = ts.SpeechToText()
+    #     name, words_list = STT.transcribe_audio_file(mypath + "/" + wav)
+    #     words += words_list
+    print('time taken={}'.format(time.time() - start))
+    # print(words_list)
