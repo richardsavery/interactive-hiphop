@@ -9,6 +9,8 @@ import soundfile as sf
 import numpy as np
 from scipy.io.wavfile import write
 import random
+#from pathlib import Path
+import subprocess
 
 # import parselmouth
 import matplotlib.pyplot as plt
@@ -21,7 +23,9 @@ note_values = [1/4, 1/3, 1/2, 2/3, 1]
 
 engine = pyttsx3.init()
 
-engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
+#engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
+engine.setProperty('voice', 'english')
+print(engine.proxy.__dict__)
 
 def print_voices():
     voices = engine.getProperty('voices')
@@ -41,13 +45,15 @@ def save_and_tokenize(text):
     save_utterance(text, "full.aiff")
     for i, word in enumerate(text.split()):
         print(word)
-        out_file = "./split_audio/{0}.aiff".format(i)
+        dir = './split_audio'
+        out_file = dir + "/{0}.aiff".format(i)
         print("exporting", out_file)
         save_utterance(word, out_file)
     engine.runAndWait()
 
 def save_utterance(text, filename):
-    engine.save_to_file(text, filename)
+    subprocess.call(["espeak", "-w", filename, text], cwd=os.path.dirname(os.path.abspath(__file__)))
+    # engine.save_to_file(text, filename)
 
 def read_aiff(filename):
     print("reading " + filename)
@@ -68,10 +74,13 @@ def text_to_rhythm(text, bpm):
     # numeric = lambda x, y: int(x[:-4]) > int(y[:-4])
     parseInt = lambda x: int(x[:-5])
     #read files
+    path = os.path.dirname(os.path.abspath(__file__)) + '/split_audio'
+    # path = os.fsencode(path)
+    print(path)
+    print("DIR ", os.listdir(path))
+    #print(os.listdir("split_audio"))
 
-    print(os.listdir("./split_audio"))
-
-    files = [f for f in os.listdir(directory) if f.endswith(".aiff")]
+    files = [f for f in os.listdir(path) if f.endswith(".aiff")]
     for file in sorted(files, key=parseInt):
         tokenized_audio.append(read_aiff(os.path.join(directory, file)))
     
@@ -189,4 +198,5 @@ Uncomment a line for quick testing
 # text_to_rhythm("I was a fiend, before I had been a teen, I melted microphones instead of cones of ice cream, music orientaded so when hip hop was originated, fitted like pieces of puzzles, complicated", 90)
 
 text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 90)
-# say_phrase("Testing the text to speech")
+#say_phrase("Testing the text to speech")
+#print_voices()
