@@ -36,14 +36,14 @@ class RhymeAnalysis(PhoneticAnalysis):
         
         return set(rhyming_words)
     
-    def get_rhyme_schemes(self, min_suffix_length=0):
+    def get_rhyme_schemes(self, min_suffix_length=None):
 
         rhyming_words = defaultdict(list)
 
         for i, vowel_seq in enumerate(self.vowels_by_word):
             rhyming_words[vowel_seq].append(self.words_orig[i])
 
-        if min_suffix_length > 0:
+        if min_suffix_length is not None:
             return self.merge_rhyme_schemes_by_suffix(rhyming_words, min_suffix_length)
 
         return rhyming_words
@@ -64,6 +64,18 @@ class RhymeAnalysis(PhoneticAnalysis):
                 res[suffix].extend(words)
             
         return res
+
+    def get_rhyming_score(self, min_suffix_length=None):
+        rhyme_schemes = self.get_rhyme_schemes(min_suffix_length=min_suffix_length)
+
+        num_rhyming_words = 0
+
+        for vowel_seq in rhyme_schemes:
+            words = rhyme_schemes[vowel_seq]
+            if len(words) > 1:
+                num_rhyming_words += len(words)
+        
+        return float(num_rhyming_words) / len(self.words_orig)
 
 def sort_rhyme_scheme_dict(rhyme_schemes):
     return sorted(rhyme_schemes.items(), key=lambda entry: len(entry[1]), reverse=True)
@@ -156,6 +168,8 @@ def run_test_suffixes():
     suffixes = rhyme.merge_rhyme_schemes_by_suffix(rhyme_schemes, 2)
     sorted_suffixes = sort_rhyme_scheme_dict(suffixes)
     print_rhyme_schemes(sorted_suffixes, suffixes=True)
+
+    print(rhyme.get_rhyming_score())
 
 if __name__ == "__main__":
     run_test_suffixes()
