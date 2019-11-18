@@ -31,7 +31,7 @@ def main():
     speech_to_text_start = time()
     audio_path = os.path.join(data_directory, "sample1.wav")
     speech_to_text = SpeechToText()
-    input_lyrics_file_path = speech_to_text.transcribe_audio(audio_path)
+    input_lyrics_file_path = speech_to_text.transcribe_audio_file(audio_path)
 
     with open(input_lyrics_file_path) as f:
         input_lyrics = f.read().lower()

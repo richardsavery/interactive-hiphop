@@ -14,14 +14,15 @@ import os
 from keras.preprocessing.text import Tokenizer
 from keras.utils import to_categorical
 
-from .data_util import get_verses
+from data_util import get_verses
 
 curr_directory = os.path.dirname(os.path.realpath(__file__))
+
 
 class LSTM_Generator:
     def __init__(self):
         self.verses = get_verses()
-        self.seq_length_pred = 10
+        self.seq_length_pred = 20
         self.model_path = os.path.join(curr_directory, "model.h5")
 
     def train(self):
@@ -49,17 +50,14 @@ class LSTM_Generator:
         result = []
 
         while not result or result[-1] != "endverse":
-            encoded = tokenizer.texts_to_sequences([sequence])[0]
+            encoded = tokenizer.texts_to_sequences([sequence])
             encoded = pad_sequences(
-                [encoded], maxlen=self.seq_length_pred, truncating="pre"
+                encoded, maxlen=self.seq_length_pred, truncating="pre"
             )
-            pred = model.predict_classes(encoded, verbose=0)
-            predWord = ""
-            for word, index in tokenizer.word_index.items():
-                if index == pred:
-                    predWord = word
-                    break
-            sequence += " " + predWord
+            pred = model.predict(encoded, verbose=0)[0]
+            pred_index = np.argmax(pred)
+            predWord = tokenizer.index_word[pred_index]
+            sequence += " " + tokenizer.index_word[pred_index]
             result.append(predWord)
         return " ".join(result)
 
@@ -75,9 +73,15 @@ class LSTM_Generator:
         length = self.seq_length_pred + 1
         seq = []
         for i, verse in enumerate(tokenized):
-            for j in range(len(verse) - length + 1):
-                seq.append(verse[j : j + length])
+            for j in range(1, len(verse)):
+                verse_slice = verse[: j + 1]
+                padded = pad_sequences([verse_slice], maxlen=length, truncating="pre")
+                seq.append(padded[0])
+        # for i, verse in enumerate(tokenized):
+        #     for j in range(len(verse) - length + 1):
+        #         seq.append(verse[j : j + length])
         seq = np.array(seq)
+        print(seq)
         self.X, self.y = seq[:, :-1], seq[:, -1]
         self.y = to_categorical(self.y, num_classes=self.vocab_size)
         self.seq_length = self.X.shape[1]
@@ -87,7 +91,11 @@ class LSTM_Generator:
 
         self.model = Sequential()
         embedding_layer = Embedding(
-            self.vocab_size, EMBEDDING_DIM, input_length=self.seq_length, trainable=True
+            self.vocab_size,
+            EMBEDDING_DIM,
+            input_length=self.seq_length,
+            trainable=True,
+            mask_zero=True,
         )
         self.model.add(embedding_layer)
         self.model.add(LSTM(100, return_sequences=True))
@@ -103,21 +111,31 @@ class LSTM_Generator:
         )
         callbacks_list = [checkpoint]
         self.model.fit(
-            self.X, self.y, batch_size=128, epochs=100, callbacks=callbacks_list
+            self.X, self.y, batch_size=128, epochs=1, callbacks=callbacks_list
         )
 
 
-if __name__ == "__main__":
+def test_model_generation():
     model = LSTM_Generator()
     # seed = input("Seed word/phrase: ")
-    # gen = model.generate(seed)
-    # print(gen)
-
-    # Try using transformers
-    # Prog rock lyrics
-    # model.train()
-    gen = model.generate("manifest")
+    seed = "manifest"
+    gen = model.generate(seed)
     print(gen)
-    # model.train()
-    # gen = model.generate("manifest")
-    # print(gen)
+
+
+def test_embed():
+    model = LSTM_Generator()
+    model.embed()
+    print(model.X)
+    print(model.y)
+
+
+def test_model_basic():
+    model = LSTM_Generator()
+    tokenizer = pickle.load(open(tokenizer_path, "rb"))
+    model.create_model()
+
+
+if __name__ == "__main__":
+    # test_embed()
+    test_model_generation()
