@@ -166,9 +166,8 @@ def adapt_sixteenth_flow(tokenized_audio, bpm):
     lengths = [len(x[0]) for x in tokenized_audio]
     # word_durations = [x // sixteenths for x in lengths]
     word_durations = []
-    # print(word_durations)
-
     padded_words = []
+    
     for data, fs in tokenized_audio:
         length = math.ceil(len(data) / sixteenths)
         print(data)
@@ -191,4 +190,3 @@ Uncomment a line for quick testing
 
 text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 90)
 # say_phrase("Testing the text to speech")
-# text_to_rhythm("I'm a robot that raps, when I can't I bust caps, Ishan likes to program apps, and his ripped jeans always slap", 90)
