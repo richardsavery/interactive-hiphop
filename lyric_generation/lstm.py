@@ -14,7 +14,7 @@ import os
 from keras.preprocessing.text import Tokenizer
 from keras.utils import to_categorical
 
-from data_util import get_verses
+from .data_util import get_verses
 
 curr_directory = os.path.dirname(os.path.realpath(__file__))
 
@@ -22,7 +22,7 @@ curr_directory = os.path.dirname(os.path.realpath(__file__))
 class LSTM_Generator:
     def __init__(self):
         self.verses = get_verses()
-        self.seq_length_pred = 20
+        self.seq_length_pred = 10
         self.model_path = os.path.join(curr_directory, "model.h5")
 
     def train(self):
