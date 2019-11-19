@@ -264,6 +264,7 @@ class SpeechToText:
 
 if __name__ == "__main__":
     a = SpeechToText()
-    # b = ta.SpeechFileProcessor()
+    b = ta.SpeechFileProcessor()
     fname = str(sys.argv[1]) # records to this file
     a.record_to_file(fname)
+    print(b.process_audio_file(fname))

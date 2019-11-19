@@ -26,8 +26,13 @@ class SpeechFileProcessor:
         # initialize text segment array
         self._transcribe_threads = [None] * num_split_files
         transcription = TextTranscription(num_split_files)
-        for i, chunk in enumerate(os.listdir(split_dir)):
+        wav_list = os.listdir(split_dir)
+        wav_list.sort(key=lambda x: x.split('chunk')[1])
+
+        for i, chunk in enumerate(wav_list):
+            print(chunk)
             chunk_path = os.path.join(split_dir, chunk)
+            print(chunk_path)
             kwargs = {'chunk_path' : chunk_path, 'i' : i, 'transcription' : transcription}
             self._transcribe_threads[i] = threading.Thread(target=self._transcribe, kwargs=kwargs)
         for thread in self._transcribe_threads:
