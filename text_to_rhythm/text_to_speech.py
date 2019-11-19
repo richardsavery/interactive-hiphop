@@ -11,6 +11,7 @@ from scipy.io.wavfile import write
 import random
 #from pathlib import Path
 import subprocess
+from gtts import gTTS
 
 # import parselmouth
 import matplotlib.pyplot as plt
