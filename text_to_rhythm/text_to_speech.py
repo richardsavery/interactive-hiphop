@@ -14,7 +14,7 @@ import random
 
 # from pathlib import Path
 import subprocess
-from gtts import gTTS
+# from gtts import gTTS
 
 # import parselmouth
 import matplotlib.pyplot as plt
@@ -25,7 +25,7 @@ import librosa, librosa.display
 # from pydub.silence import split_on_silence
 # import fleep
 
-note_values = [1 / 4, 1 / 3, 1 / 2, 2 / 3, 1]
+note_values = set([1 / 4, 1 / 3, 1 / 2, 2 / 3, 1])
 
 engine = pyttsx3.init()
 
@@ -50,28 +50,28 @@ def say_phrase(text):
 
 
 def save_and_tokenize(text):
-    save_utterance(text, "full.aiff")
+    save_utterance(text, "full.wav")
     for i, word in enumerate(text.split()):
         print(word)
         dir = "./split_audio"
-        out_file = dir + "/{0}.aiff".format(i)
+        out_file = dir + "/{0}.wav".format(i)
         print("exporting", out_file)
         save_utterance(word, out_file)
     engine.runAndWait()
 
 
-def online_tts(text):
-    print(len(text.split()))
-    tts = gTTS(text, slow=True)
-    tts.save("full.mp3")
-    split_phrase("full.mp3")
+# def online_tts(text):
+#     print(len(text.split()))
+#     tts = gTTS(text, slow=True)
+#     tts.save("full.mp3")
+#     split_phrase("full.mp3")
 
 
-def split_phrase(filename):
-    audio, sr = librosa.load(filename)
-    intervals = librosa.effects.split(audio, top_db=10)
-    print(intervals)
-    print(len(intervals))
+# def split_phrase(filename):
+#     audio, sr = librosa.load(filename)
+#     intervals = librosa.effects.split(audio, top_db=10)
+#     print(intervals)
+#     print(len(intervals))
 
 
 def save_utterance(text, filename):
@@ -93,13 +93,13 @@ def text_to_rhythm(text, bpm):
 
     # remove old audio
     for file in sorted(os.listdir(directory)):
-        if file.endswith(".aiff"):
+        if file.endswith(".wav"):
             os.remove(os.path.join(directory, file))
 
     # create word aiff files
     save_and_tokenize(text)
     # numeric = lambda x, y: int(x[:-4]) > int(y[:-4])
-    parseInt = lambda x: int(x[:-5])
+    parseInt = lambda x: int(x[:-4])
     # read files
     path = os.path.dirname(os.path.abspath(__file__)) + "/split_audio"
     # path = os.fsencode(path)
@@ -107,24 +107,33 @@ def text_to_rhythm(text, bpm):
     print("DIR ", os.listdir(path))
     # print(os.listdir("split_audio"))
 
-    files = [f for f in os.listdir(path) if f.endswith(".aiff")]
+    files = [f for f in os.listdir(path) if f.endswith(".wav")]
     for file in sorted(files, key=parseInt):
         tokenized_audio.append(read_aiff(os.path.join(directory, file)))
 
     fs = tokenized_audio[0][1]
     fpb = (60 * fs) / bpm
 
-    num_flows = random.randint(1, int((len(tokenized_audio) / 12)))
+    num_flows = random.randint(1, int((len(tokenized_audio) / 8)))
     flow_groups = np.array_split(np.asarray(tokenized_audio), num_flows)
     print("DIVISIONS: ", [len(x) for x in flow_groups])
     rhythmic_audio = []
+    value = None
+
     for words in flow_groups:
         lengths = [len(x) for x in words]
         average = sum(lengths) / len(lengths)
-        possible_values = set([note_values[2]])
-        for value in note_values:
-            if abs(value * fpb - average) / average > 0.95:
-                possible_values.add(value)
+        # possible_values = set([note_values[2]])
+        # for value in note_values:
+        #     if abs(value * fpb - average) / average > 0.95:
+        #         possible_values.add(value)
+        # value = random.choice(list(possible_values))
+
+        possible_values = note_values
+
+        if value is not None:
+            possible_values -= set([value])
+        
         value = random.choice(list(possible_values))
         rhythmic_audio.extend(generic_flow(words, bpm, (value * fpb), adapt=True))
         rhythmic_audio.extend(
@@ -242,16 +251,18 @@ def adapt_sixteenth_flow(tokenized_audio, bpm):
 """
 Uncomment a line for quick testing
 """
-# text_to_rhythm("I was a fiend, before I had been a teen, I melted microphones instead of cones of ice cream, music orientaded so when hip hop was originated, fitted like pieces of puzzles, complicated", 90)
+if __name__ == "__main__":
+    # text_to_rhythm("I was a fiend, before I had been a teen, I melted microphones instead of cones of ice cream, music orientaded so when hip hop was originated, fitted like pieces of puzzles, complicated", 90)
 
-# text_to_rhythm(
-#     "Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.",
-#     90,
-# )
-# say_phrase("Testing the text to speech")
-# print_voices()
+    text_to_rhythm(
+        "Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.",
+        90,
+    )
+    
+    # say_phrase("Testing the text to speech")
 
-# online_tts(
-#     "Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while."
-# )
+    # print_voices()
+    # online_tts(
+    #     "Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while."
+    # )
 
