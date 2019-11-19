@@ -6,7 +6,7 @@ import pydub
 import pyaudio
 import eng_to_ipa as ipa
 import speech_recognition as sr
-from pocketsphinx import AudioFile
+# from pocketsphinx import AudioFile
 from sys import byteorder
 from array import array
 from struct import pack
@@ -23,8 +23,15 @@ RATE = 44100
 
 class SpeechToText:
 
-    def __init__(self, audiofile=None):
-        self.audiofile = audiofile
+    def __init__(self, microphone=None):
+        self.found_invalid = False
+        print(sr.Microphone.list_microphone_names())
+        self.microphone = int(input("Enter the index of the recording device: "))
+        
+
+    def set_mic(self):
+        print(sr.Microphone.list_microphone_names())
+        self.microphone = int(input("Enter the index of the new recording device: "))
     
     def transcribe_audio_file(self, audio_file=None):
         # this transcribes an existing audio file
@@ -42,20 +49,25 @@ class SpeechToText:
         r = sr.Recognizer()
         with sr.AudioFile(audio_file) as source:
             audio = r.record(source)
-        print("Google thinks you said \n\n")
-        returnedSpeech = str(r.recognize_google(audio))
+        print("Google thinks you said:  ")
 
+        try:
+            returnedSpeech = str(r.recognize_google(audio))
+            self.found_invalid = False
+        except:
+            print("Unidentified token in ", audio_file)
+            returnedSpeech = ""
+            self.found_invalid = True
         file_name = audio_file[:-4] + ".txt"
-        audio_text_file = open(file_name, "w")
-        audio_text_file.write(returnedSpeech)
-        audio_text_file.close()
+        if not self.found_invalid:
+            audio_text_file = open(file_name, "a")
+            audio_text_file.write(returnedSpeech)
+            audio_text_file.close()
 
         wordsList = returnedSpeech.split()
-        print(returnedSpeech)
-        print("\n")
-        print(wordsList)
+        print(returnedSpeech + "\n")
         # print("predicted loacation of start ", float(wordsList.index("the")) * 0.3)
-        return file_name
+        return file_name, wordsList
         
     def write_as_IPA(self, file_name):
         # this writes a text file as another IPA text file
@@ -165,9 +177,20 @@ class SpeechToText:
         it without getting chopped off.
         """
         p = pyaudio.PyAudio()
-        stream = p.open(format=FORMAT, channels=1, rate=RATE,
-            input=True, output=True,
-            frames_per_buffer=CHUNK_SIZE)
+        try:
+            stream = p.open(
+                format=FORMAT, 
+                channels=1, 
+                rate=RATE,
+                input=True, 
+                input_device_index=self.microphone,
+                output=True,
+                frames_per_buffer=CHUNK_SIZE)
+        except OSError:
+            print("Invalid Audio Input Source. Switch input and call function again.\n")
+            self.set_mic()
+            return
+        print("\nRECORDING IN PROGRESS...")
 
         num_silent = 0
         snd_started = False
@@ -188,7 +211,7 @@ class SpeechToText:
             elif not silent and not snd_started:
                 snd_started = True
 
-            if snd_started and num_silent > 60:
+            if snd_started and num_silent > 80:
                 break
 
         sample_width = p.get_sample_size(FORMAT)
@@ -204,7 +227,10 @@ class SpeechToText:
     def record_to_file(self, path):
         # Records from the microphone and outputs the resulting data to 'path'
         # USE THIS FUNCTION!!!!!
-        sample_width, data = self.record()
+        val = self.record()
+        if val == None:
+            return
+        sample_width, data = val
         data = pack('<' + ('h'*len(data)), *data)
 
         wf = wave.open(path, 'wb')
@@ -228,74 +254,13 @@ class SpeechToText:
             except:
                 print("Could not recognize voice")
 
-    def use_gcp(self, file):
-        GOOGLE_CLOUD_SPEECH_CREDENTIALS = r"""{
-            "type": "service_account",
-                "project_id": "srt-editing-1536019242339",
-                "private_key_id": "36d75900a4b92525d507bf52a3203def2878f1db",
-                "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCk6TVCcNTj39MQ\nfxM/v7Rbt1rY6Qv3FfKH5YeH1v2RXw355oId/6ZwWzUyInla+KIb4hThTmq0H44a\nZAfGqbmLKeJSZxEZB3wsRAFv7hDnw1dRuEdR7U+YXuTC/kqZOYepaxVdNj9ibigz\njcjioyq/McXXcNp9ENYZrMzq4GooC24i6WBEOPTvhIxSAKgazqQfVhSzOHhO1w+d\nhxrsGNLuRXkPOOe5M2RGM9RipAZID8JwfccY/iXSs6KXn1HKR3rR7txsDpUkfKsc\n9RTEl+8ffFWjA8FzRgiJ4DxdUz7UW9wyzQeVGG2+S1IwNhefPAuFdU9FiM0g7vpP\nVlzcA2SRAgMBAAECggEAIKD/57h5dujnUwFBpsBgiDEcKYTa2DWgeiEBEvCH1UaQ\ndlyUbCkUHnD9coD9r/E36fpulTG1zRPdQv19yGH2k0FjRVidOm2PtRZzjlj1QVYW\nJdYnTl98+zHzY117FxwZ6nyEip/cJLaU/7ZTA/yyzYeklH8Ay/QT2JqnJOXoOynO\nZgiSMRiJ4a0yp28AxKPKZiYcHT0SzesVnunxry9tU1C+0igku7b4XEh9MKjinEc7\nYypnPsE0Hy2miTMg2k93LeTYGzdN/XcwIvkcpQ8NE6W39lCkv0tYvyxRTuGIwFjk\nsFqargGlFezO3BLPqkjo3cbem23bfhLyFugDCxE07QKBgQDXxeLuH1Y/5UJMb8Zs\nXVOdBji76aeUFQkCTljFg+7Umz+x00IZOAsqgprAwz2cmhbHDrCyQ2ufoLRUvKdQ\nUidyZnjHKfkRiUhZ0OGxLOVqXFxFZX04p3o3XXX+6xjIQPbuQGECkfJKNF219wDI\nNxp1GGDn5kBXqP6U4CUmrpTY0wKBgQDDp9l86QgotOklPRvOaeZd0+hLMpyZEQn6\ntkPIJbV2reA0qx1Ylfi0QsMKKcDjEpA3LIpI30bamzqYpIGM15LOQGIBRxIdRB31\nDrEPP+OYeJoFJPlGrg/teU96wyLMnZae1Y2Ah1FuoLF6pNm140XpIh94wmaMQKvd\n9vqGr31uiwKBgBbrFOR3/aBByJ33zVqbOxNVotcKxVrsNQ3CppksH0UDzGsl5kJp\nen4kay2IT1X/4+V2wPveP2MwHZdWhmr4nun+yltVMPhU3ZN0pVQ9UYzPjJluYzOO\nTmPtEGhoLjSu+ctqmSM9vz90enOmbbXWbH/9e+WFxlXJRGkpuah3KKYzAoGAUPGb\nB5M83eJiZhaO72ledcjaXGnW4XhsIX3QMvhux2eNzxxPqrt4xdKs8AJwG0EtyrWx\njA5bOMtphYbhVcxFnvCB2zd05gitQBnQ5Jcw6H5UcfZm7nfKfRtn50jdl7tGefWt\ncdQJu3PdmPikXRxmatnEHWiHllSXBeBMqvXlNZsCgYB07H/mZRCvVJK1+mtaSA+w\njp1VIbsuouthyrXaA/y4dg+3qdkeAG7p+uGCZjyCnRT7RiDJkh/ioPlnytISk6Ht\nIf5b4jmB04WwVu5EWGJQzRi2toLw2JAD+iUsdrKbON5uaq95ZClNvAeSCjA82Y5T\n/nRpOcwiQ8E68/bJXq3IAQ==\n-----END PRIVATE KEY-----\n",
-                "client_email": "interactive-hiphop@srt-editing-1536019242339.iam.gserviceaccount.com",
-                "client_id": "109455511731968078576",
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-                "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/interactive-hiphop%40srt-editing-1536019242339.iam.gserviceaccount.com"
-                }
-            """
-        r = sr.Recognizer()
-        with sr.AudioFile(file) as source:
-            audio_fr = r.record(source)  # read the entire audio file
-        try:
-            print("Google Cloud Speech recognition for \"numero\" with different sets of preferred phrases:")
-            print(r.recognize_google_cloud(audio_fr, credentials_json=GOOGLE_CLOUD_SPEECH_CREDENTIALS, preferred_phrases=["noomarow"]))
-            print(r.recognize_google_cloud(audio_fr, credentials_json=GOOGLE_CLOUD_SPEECH_CREDENTIALS, preferred_phrases=["newmarrow"]))
-        except sr.UnknownValueError:
-            print("Google Cloud Speech could not understand audio")
-        except sr.RequestError as e:
-            print("Could not request results from Google Cloud Speech service; {0}".format(e))
-
-
-
     # def text_to_ipa(self, path):
     #     # Use this function if you have a txt file that's in words but need IPA
     #     f = open(path, 'r')
     #     words = f.read()
 
 
-    # if __name__ == "__main__":
-    #     transcribe_audio_file("sample1.wav")
-    # def sample_recognize(self, local_file_path):
-    #     """
-    #     Transcribe a short audio file using synchronous speech recognition
-
-    #     Args:
-    #     local_file_path Path to local audio file, e.g. /path/audio.wav
-    #     """
-
-    #     client = speech_v1.SpeechClient()
-
-    #     # local_file_path = 'resources/brooklyn_bridge.raw'
-
-    #     # The language of the supplied audio
-    #     language_code = "en-US"
-
-    #     # Sample rate in Hertz of the audio data sent
-    #     sample_rate_hertz = 16000
-
-    #     # Encoding of audio data sent. This sample sets this explicitly.
-    #     # This field is optional for FLAC and WAV audio formats.
-    #     encoding = enums.RecognitionConfig.AudioEncoding.LINEAR16
-    #     config = {
-    #         "language_code": language_code,
-    #         "sample_rate_hertz": sample_rate_hertz,
-    #         "encoding": encoding,
-    #     }
-    #     with io.open(local_file_path, "rb") as f:
-    #         content = f.read()
-    #     audio = {"content": content}
-
-    #     response = client.recognize(config, audio)
-    #     for result in response.results:
-    #         # First alternative is the most probable result
-    #         alternative = result.alternatives[0]
-    #         print(u"Transcript: {}".format(alternative.transcript))
+if __name__ == "__main__":
+    a = SpeechToText()
+    fname = str(sys.argv[1]) # records to this file
+    a.record_to_file(fname)
