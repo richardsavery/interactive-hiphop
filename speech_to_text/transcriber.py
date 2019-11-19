@@ -12,6 +12,7 @@ from array import array
 from struct import pack
 # from google.cloud import speech_v1
 # from google.cloud.speech_v1 import enums
+import transcribe_audio as ta
 
 import pyaudio
 import wave
@@ -242,6 +243,7 @@ class SpeechToText:
 
         self.transcribe_audio_file(path)
         self.write_as_IPA(path)
+        return(path)
 
     def recognize_google(self):
         r = sr.Recognizer()
@@ -262,5 +264,6 @@ class SpeechToText:
 
 if __name__ == "__main__":
     a = SpeechToText()
+    # b = ta.SpeechFileProcessor()
     fname = str(sys.argv[1]) # records to this file
     a.record_to_file(fname)

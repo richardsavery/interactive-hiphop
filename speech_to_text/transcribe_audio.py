@@ -1,91 +1,88 @@
-import os
-import sys
 import time
-import pydub
+
 import librosa
-import threading
+import os
+import pydub
+from pydub.silence import split_on_silence
+from pydub import AudioSegment
 import speech_recognition as sr
+import sys
+import threading
 import transcriber as ts
 
-from pydub import AudioSegment
-from pydub.silence import split_on_silence
+class TextTranscription:
+    def __init__(self, count):
+        self.text_segments = [''] * count
 
+class SpeechFileProcessor:
+    def __init__(self):
+        self._text_segment_lock = threading.Lock()
 
-def transcribe_audio(fname):
-    r = sr.Recognizer()
-    with sr.AudioFile(fname) as source:
-        audio_len = source.DURATION
-        print(audio_len)
-        chunk_len = audio_len // 10
-        for chunk in range(10):
+    def process_audio_file(self, fname, persist=False):
+        # Split the audio file into more managable chunks
+        split_dir, num_split_files = self._split_silence(fname)
+        if num_split_files == 0:
+            raise Exception('Could not split audio file {}'.format(fname))
+        # initialize text segment array
+        self._transcribe_threads = [None] * num_split_files
+        transcription = TextTranscription(num_split_files)
+        for i, chunk in enumerate(os.listdir(split_dir)):
+            chunk_path = os.path.join(split_dir, chunk)
+            kwargs = {'chunk_path' : chunk_path, 'i' : i, 'transcription' : transcription}
+            self._transcribe_threads[i] = threading.Thread(target=self._transcribe, kwargs=kwargs)
+        for thread in self._transcribe_threads:
+            thread.start()
+        for thread in self._transcribe_threads:
+            if thread.is_alive():
+                thread.join()
+        
+        transcribed_text = ' '.join(transcription.text_segments)
+
+        if persist:
+            outfname = '{}_transcription.txt'.format(fname)
+            with open(outfname, 'w') as f:
+                f.write(transcribed_text)
+        return transcribed_text
+        
+    def _split_silence(self, fname):
+        sound_file = AudioSegment.from_wav(fname)
+        audio_chunks = split_on_silence(sound_file, 
+            # must be silent for at least half a second
+            min_silence_len=100,
+
+            silence_thresh=-35
+        )
+        split_dir = "{}_split".format(fname)
+        if not os.path.exists(split_dir):
+            os.mkdir(split_dir)
+
+        for i, chunk in enumerate(audio_chunks):
+            out_file = "{}/chunk{}.wav".format(split_dir, i)
+            chunk.export(out_file, format="wav")
+
+        return split_dir, len(audio_chunks)
+    
+    
+    def _transcribe(*args, **kwargs):
+        chunk_path = kwargs['chunk_path']
+        i = kwargs['i']
+        r = sr.Recognizer()
+        transcription = kwargs['transcription']
+        text = ''
+        with sr.AudioFile(chunk_path) as source:
             try:
-                audio = r.record(source, duration=chunk_len, offset=chunk * chunk_len)
-                print(r.recognize_google(audio))
+                audio = r.record(source)
+                text = r.recognize_google(audio)
             except:
-                print("errored")
-                continue
+                return
+        transcription.text_segments[i] = text
 
-def split_on_onset(fname):
-    chunk_dir = '{}_chunks'.format(fname)
-
-    y, sr = librosa.load(fname)
-    print(y)
-    print("len of y", len(y))
-    print(sr)
-    frames = librosa.onset.onset_detect(y=y, sr=60000)
-    samples = librosa.frames_to_samples(frames)
-
-    if not os.path.exists(chunk_dir):
-        os.mkdir(chunk_dir)
-    for i in range(len(samples) - 1):
-        chunk = y[samples[i] : samples[i + 1]]
-        librosa.output.write_wav('{}_chunks/chunk{}.wav'.format(fname, i), chunk, sr)
-    last_chunk = y[samples[-1]:]
-    librosa.output.write_wav('{}_chunks/chunk{}.wav'.format(fname, len(frames) - 1), last_chunk, sr)
-    return chunk_dir
-
-def split(fname):
-    sound_file = AudioSegment.from_wav(fname)
-    audio_chunks = split_on_silence(sound_file, 
-        # must be silent for at least half a second
-        min_silence_len=100,
-
-        # consider it silent if quieter than -16 dBFS
-        silence_thresh=-35
-    )
-
-    # makes folder to hold chunks
-    newname = fname[:-4] + "_chunks"
-    try:
-        os.mkdir(newname)
-    except:
-        print("file exists already.")
-
-    # writes chunked audio files into folder
-    for i, chunk in enumerate(audio_chunks):
-        out_file = newname + "/{0}.wav".format(i)
-        chunk.export(out_file, format="wav")
 
 
 if __name__ == '__main__':
     fname = sys.argv[1]
-    start = time.time()
-    split(fname)
-    mypath = fname[:-4] + "_chunks"
-    dir_wav = os.listdir(mypath)
-    
-    # sorts chunked files in order
-    dir_wav.sort(key=lambda x: int(x[:-4]))
-
-    words = []
-
-    # TODO: threading for files?
-    # right now, just reads them in a for loop
-    # also writes a single text file per chunk
-
-    # for wav in dir_wav:
-    #     STT = ts.SpeechToText()
-    #     name, words_list = STT.transcribe_audio_file(mypath + "/" + wav)
-    #     words += words_list
-    print('time taken={}'.format(time.time() - start))
-    # print(words_list)
+    processor = SpeechFileProcessor()
+    start_time = time.time()
+    transcription = processor.process_audio_file(fname, persist=True)
+    print('time taken: {}'.format(time.time() - start_time))
+    print(transcription)
