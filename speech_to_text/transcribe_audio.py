@@ -47,6 +47,7 @@ class SpeechFileProcessor:
             outfname = '{}_transcription.txt'.format(fname)
             with open(outfname, 'w') as f:
                 f.write(transcribed_text)
+            return outfname
         return transcribed_text
         
     def _split_silence(self, fname):

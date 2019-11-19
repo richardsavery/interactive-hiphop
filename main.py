@@ -1,14 +1,18 @@
 import os
+import sys
+sys.path.append('./speech_to_text')
 import json
 from time import time
 
+
 import_start_time = time()
 from speech_to_text.transcriber import SpeechToText
+from speech_to_text.transcribe_audio import SpeechFileProcessor
 from rhymes_keywords_sentiment.keywordextraction import KeywordExtractor
 from rhymes_keywords_sentiment.sentiment_analysis import SentimentAnalyzer
 from lyric_generation.lstm import LSTM_Generator
 from markov_model_rhymes.markov_rhyme import MarkovRhymeGenerator
-# from text_to_rhythm.text_to_speech import text_to_rhythm
+from text_to_rhythm.text_to_speech import text_to_rhythm
 import_total_time = time() - import_start_time
 print("Time for all imports:", import_total_time)
 
@@ -28,12 +32,16 @@ def main():
 
     # get input lyrics text from audio
     print_spacer("Speech To Text")
-    speech_to_text_start = time()
     audio_path = os.path.join(data_directory, "sample1.wav")
     speech_to_text = SpeechToText()
-    input_lyrics_file_path = speech_to_text.transcribe_audio_file(audio_path)
+    speech_file_processor = SpeechFileProcessor()
+    input_sound_file = './data/speech_test.wav'
+    speech_to_text.record_to_file(input_sound_file)
 
-    with open(input_lyrics_file_path) as f:
+    speech_to_text_start = time()
+    processed_input_text_file = speech_file_processor.process_audio_file(input_sound_file, persist=True)
+
+    with open(processed_input_text_file) as f:
         input_lyrics = f.read().lower()
 
     speech_to_text_total_time = time() - speech_to_text_start
@@ -106,7 +114,7 @@ def main():
 
     # say the words
     text_to_rhythm_start_time = time()
-    # text_to_rhythm(output_lyrics_with_rhymes, 101)
+    text_to_rhythm(output_lyrics_with_rhymes, 101)
     text_to_rhythm_total_time = time() - text_to_rhythm_start_time
     print("text_to_rhythm time: ", text_to_rhythm_total_time)
 
