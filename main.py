@@ -6,7 +6,7 @@ from time import time
 
 
 import_start_time = time()
-from speech_to_text.transcriber import SpeechToText
+from speech_to_text.record_audio import AudioRecorder
 from speech_to_text.transcribe_audio import SpeechFileProcessor
 from rhymes_keywords_sentiment.keywordextraction import KeywordExtractor
 from rhymes_keywords_sentiment.sentiment_analysis import SentimentAnalyzer
@@ -26,19 +26,17 @@ def print_spacer(text):
 
 
 def main():
-    project_directory = get_project_directory()
-    data_directory = os.path.join(project_directory, 'data')
-
+    project_directory = os.path.dirname(os.path.realpath(__file__))
+    get_data_file_path = lambda filename : os.path.join(project_directory, 'data', filename) 
 
     # get input lyrics text from audio
     print_spacer("Speech To Text")
-    audio_path = os.path.join(data_directory, "sample1.wav")
-    speech_to_text = SpeechToText()
-    speech_file_processor = SpeechFileProcessor()
-    input_sound_file = './data/speech_test.wav'
+    speech_to_text = AudioRecorder()
+    input_sound_file = get_data_file_path('speech_test.wav')
     speech_to_text.record_to_file(input_sound_file)
 
     speech_to_text_start = time()
+    speech_file_processor = SpeechFileProcessor()
     processed_input_text_file = speech_file_processor.process_audio_file(input_sound_file, persist=True)
 
     with open(processed_input_text_file) as f:
@@ -81,7 +79,7 @@ def main():
     output_lines = output_lyrics.split('endline')[:5]
     output_lines_with_rhymes = []
 
-    corpus = json_to_corpus('./data/verses.json')
+    corpus = json_to_corpus(get_data_file_path('verses.json'))
     rhyme_generator = MarkovRhymeGenerator(corpus)
     for line in output_lines:
         # print(line)
@@ -130,9 +128,6 @@ def json_to_corpus(fname):
                         lines.append(line)
 
     return'\n'.join(lines)
-
-def get_project_directory():
-    return os.path.dirname(os.path.realpath(__file__))
 
 
 if __name__ == '__main__':

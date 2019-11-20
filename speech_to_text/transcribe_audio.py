@@ -8,7 +8,6 @@ from pydub import AudioSegment
 import speech_recognition as sr
 import sys
 import threading
-import transcriber as ts
 
 class TextTranscription:
     def __init__(self, count):
