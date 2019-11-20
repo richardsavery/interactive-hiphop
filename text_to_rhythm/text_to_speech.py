@@ -27,6 +27,10 @@ engine = pyttsx3.init()
 engine.setProperty('voice', 'english')
 print(engine.proxy.__dict__)
 
+def abs_file_path(*rel_path):
+    curr_directory = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(curr_directory, *rel_path)
+
 def print_voices():
     voices = engine.getProperty('voices')
     for voice in voices:
@@ -45,8 +49,8 @@ def save_and_tokenize(text):
     save_utterance(text, "full.aiff")
     for i, word in enumerate(text.split()):
         print(word)
-        dir = './split_audio'
-        out_file = dir + "/{0}.aiff".format(i)
+        dir = 'split_audio'
+        out_file = abs_file_path(dir, "{0}.aiff".format(i))
         print("exporting", out_file)
         save_utterance(word, out_file)
     engine.runAndWait()
@@ -61,7 +65,7 @@ def read_aiff(filename):
     return (data, fs)
 
 def text_to_rhythm(text, bpm):
-    directory = "./split_audio"
+    directory = abs_file_path("split_audio")
     tokenized_audio = []
 
     #remove old audio
@@ -74,7 +78,7 @@ def text_to_rhythm(text, bpm):
     # numeric = lambda x, y: int(x[:-4]) > int(y[:-4])
     parseInt = lambda x: int(x[:-5])
     #read files
-    path = os.path.dirname(os.path.abspath(__file__)) + '/split_audio'
+    path = abs_file_path('split_audio')
     # path = os.fsencode(path)
     print(path)
     print("DIR ", os.listdir(path))
