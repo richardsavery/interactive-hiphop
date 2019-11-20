@@ -22,11 +22,14 @@ CHUNK_SIZE = 1024
 FORMAT = pyaudio.paInt16
 RATE = 44100
 
-class SpeechToText:
+class AudioRecorder:
 
     def __init__(self, microphone=None):
         self.found_invalid = False
-        print(sr.Microphone.list_microphone_names())
+        mics = sr.Microphone.list_microphone_names()
+        print("Available recording devices:")
+        for i, mic in enumerate(mics):
+            print(f'{i}: {mic}')
         self.microphone = int(input("Enter the index of the recording device: "))
         
 
