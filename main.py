@@ -112,7 +112,7 @@ def main():
     print("sentiment time: ", sentiment_total_time)
     
 
-    say the words
+    # say the words
     text_to_rhythm_start_time = time()
     text_to_rhythm(output_lyrics_with_rhymes, 101)
     text_to_rhythm_total_time = time() - text_to_rhythm_start_time
