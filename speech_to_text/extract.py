@@ -9,7 +9,7 @@ import speech_recognition as sr
 # only plays an audio file
 # doesn't terminate unless manual cancel
 def play_wav_file(filename=None):
-    CHUNK = 16384
+    CHUNK = 1048576
     if filename == None or filename[-4:] != ".wav":
         print("Invalid File Input")
         print("Terminating...")
