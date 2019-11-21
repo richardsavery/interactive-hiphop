@@ -199,8 +199,9 @@ def adapt_sixteenth_flow(tokenized_audio, bpm):
 """
 Uncomment a line for quick testing
 """
-# text_to_rhythm("I was a fiend, before I had been a teen, I melted microphones instead of cones of ice cream, music orientaded so when hip hop was originated, fitted like pieces of puzzles, complicated", 90)
+if __name__ == "main":
+    # text_to_rhythm("I was a fiend, before I had been a teen, I melted microphones instead of cones of ice cream, music orientaded so when hip hop was originated, fitted like pieces of puzzles, complicated", 90)
 
-text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 90)
-#say_phrase("Testing the text to speech")
-#print_voices()
+    text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 90)
+    #say_phrase("Testing the text to speech")
+    #print_voices()
