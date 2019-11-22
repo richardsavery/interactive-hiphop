@@ -50,7 +50,6 @@ class SpeechToText:
         r = sr.Recognizer()
         with sr.AudioFile(audio_file) as source:
             audio = r.record(source)
-        print("Google thinks you said:  ")
 
         try:
             returnedSpeech = str(r.recognize_google(audio))
@@ -66,7 +65,7 @@ class SpeechToText:
             audio_text_file.close()
 
         wordsList = returnedSpeech.split()
-        print(returnedSpeech + "\n")
+        #print(returnedSpeech + "\n")
         # print("predicted loacation of start ", float(wordsList.index("the")) * 0.3)
         return file_name, wordsList
         
@@ -200,7 +199,7 @@ class SpeechToText:
 
         while 1:
             # little endian, signed short
-            snd_data = array('h', stream.read(CHUNK_SIZE))
+            snd_data = array('h', stream.read(CHUNK_SIZE, exception_on_overflow=False))
             if byteorder == 'big':
                 snd_data.byteswap()
             r.extend(snd_data)
@@ -241,9 +240,9 @@ class SpeechToText:
         wf.writeframes(data)
         wf.close()
 
-        self.transcribe_audio_file(path)
+        ret_path, _ = self.transcribe_audio_file(path)
         self.write_as_IPA(path)
-        return(path)
+        return(ret_path)
 
     def recognize_google(self):
         r = sr.Recognizer()
@@ -267,4 +266,4 @@ if __name__ == "__main__":
     b = ta.SpeechFileProcessor()
     fname = str(sys.argv[1]) # records to this file
     a.record_to_file(fname)
-    print(b.process_audio_file(fname))
+    print('recognizing: {}'.format(b.process_audio_file(fname)))

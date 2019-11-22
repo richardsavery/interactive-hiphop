@@ -25,17 +25,18 @@ engine = pyttsx3.init()
 
 #engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
 engine.setProperty('voice', 'english')
-print(engine.proxy.__dict__)
+#print(engine.proxy.__dict__)
 
 def print_voices():
     voices = engine.getProperty('voices')
     for voice in voices:
-        print("Voice:")
-        print(" - ID: %s" % voice.id)
-        print(" - Name: %s" % voice.name)
-        print(" - Languages: %s" % voice.languages)
-        print(" - Gender: %s" % voice.gender)
-        print(" - Age: %s" % voice.age)
+        pass
+        #print("Voice:")
+        #print(" - ID: %s" % voice.id)
+        #print(" - Name: %s" % voice.name)
+        #print(" - Languages: %s" % voice.languages)
+        #print(" - Gender: %s" % voice.gender)
+        #print(" - Age: %s" % voice.age)
 
 def say_phrase(text):
     engine.say(text)
@@ -44,10 +45,11 @@ def say_phrase(text):
 def save_and_tokenize(text):
     save_utterance(text, "full.aiff")
     for i, word in enumerate(text.split()):
-        print(word)
-        dir = './split_audio'
-        out_file = dir + "/{0}.aiff".format(i)
-        print("exporting", out_file)
+        ##print(word)
+        #d = './split_audio'
+        d = os.path.join(os.path.abspath(os.path.curdir), 'split_audio')
+        out_file = d + "/{0}.aiff".format(i)
+        ##print("exporting", out_file)
         save_utterance(word, out_file)
     engine.runAndWait()
 
@@ -56,12 +58,13 @@ def save_utterance(text, filename):
     # engine.save_to_file(text, filename)
 
 def read_aiff(filename):
-    print("reading " + filename)
     data, fs = sf.read(filename)
     return (data, fs)
 
 def text_to_rhythm(text, bpm):
-    directory = "./split_audio"
+    directory = os.path.join(os.path.abspath(os.path.curdir), 'split_audio')
+    if not os.path.exists(directory):
+        os.mkdir(directory)
     tokenized_audio = []
 
     #remove old audio
@@ -74,11 +77,11 @@ def text_to_rhythm(text, bpm):
     # numeric = lambda x, y: int(x[:-4]) > int(y[:-4])
     parseInt = lambda x: int(x[:-5])
     #read files
-    path = os.path.dirname(os.path.abspath(__file__)) + '/split_audio'
+    path = os.path.join(os.path.abspath(os.path.curdir), 'split_audio')
     # path = os.fsencode(path)
-    print(path)
-    print("DIR ", os.listdir(path))
-    #print(os.listdir("split_audio"))
+    #print(path)
+    #print("DIR ", os.listdir(path))
+    ##print(os.listdir("split_audio"))
 
     files = [f for f in os.listdir(path) if f.endswith(".aiff")]
     for file in sorted(files, key=parseInt):
@@ -89,7 +92,7 @@ def text_to_rhythm(text, bpm):
 
     num_flows = random.randint(1, int((len(tokenized_audio) / 12)))
     flow_groups = np.array_split(np.asarray(tokenized_audio), num_flows)
-    print("DIVISIONS: ", [len(x) for x in flow_groups])
+    #print("DIVISIONS: ", [len(x) for x in flow_groups])
     rhythmic_audio = []
     for words in flow_groups:
         lengths = [len(x) for x in words]
@@ -107,12 +110,12 @@ def text_to_rhythm(text, bpm):
     sf.write(str(bpm) + ".wav" , rhythmic_audio, fs)
 
 def punctuate(audio, bpm, fpb):
-    print("LENGTH", len(audio))
+    #print("LENGTH", len(audio))
 
     for i in range(int(len(audio)/fpb)):
-        print(i*fpb)
+        #print(i*fpb)
         if i % 16 == 15:
-            print("empty beat")
+            #print("empty beat")
             audio = np.insert(audio, int(i*fpb), np.zeros(int(fpb), dtype=int))
     return audio
 
@@ -132,7 +135,7 @@ def generic_flow(tokenized_audio, bpm, length, adapt=True):
     rhythmic_audio = []
 
     for data, fs in tokenized_audio:
-        print("frames for word: ", len(data))
+        #print("frames for word: ", len(data))
         duration = math.floor(len(data) / length)
         if duration == 0 or not adapt: duration = 1
         rhythmic_audio.extend(change_duration(data, duration*length))
@@ -150,10 +153,10 @@ def adapt_quarter_flow(tokenized_audio, bpm):
 
     #frames per beat
     fpb = (60 * fs) / bpm
-    print("Frames per beat", fpb)
+    #print("Frames per beat", fpb)
 
     for data, fs in tokenized_audio:
-        print("frames for word: ", len(data))
+        #print("frames for word: ", len(data))
         beats = math.ceil(len(data) / fpb)
         data = np.append(data, np.zeros(int((beats*fpb) - len(data)), dtype=int))
         rhythmic_audio.extend(data)
@@ -169,7 +172,7 @@ def adapt_sixteenth_flow(tokenized_audio, bpm):
     #frames per beat
     fpb = (60 * fs) / bpm
     sixteenths = fpb / 4
-    print("Frames per beat", fpb)
+    #print("Frames per beat", fpb)
 
     # word lengths
     lengths = [len(x[0]) for x in tokenized_audio]
@@ -179,7 +182,7 @@ def adapt_sixteenth_flow(tokenized_audio, bpm):
     
     for data, fs in tokenized_audio:
         length = math.ceil(len(data) / sixteenths)
-        print(data)
+        #print(data)
         data = np.append(data, np.zeros(int((length * sixteenths) - len(data)), dtype=int))
         word_durations.append(length)
         padded_words.append(data)
@@ -197,6 +200,6 @@ Uncomment a line for quick testing
 """
 # text_to_rhythm("I was a fiend, before I had been a teen, I melted microphones instead of cones of ice cream, music orientaded so when hip hop was originated, fitted like pieces of puzzles, complicated", 90)
 
-text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 90)
+#text_to_rhythm("Let's trace the hint and check the file. Let's see who bent and detect the style. I flip the script so it cant get foul. At least not now it'll take a while.", 90)
 #say_phrase("Testing the text to speech")
-#print_voices()
+##print_voices()

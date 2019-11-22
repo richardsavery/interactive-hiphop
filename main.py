@@ -36,16 +36,18 @@ def main():
     speech_to_text = SpeechToText()
     speech_file_processor = SpeechFileProcessor()
     input_sound_file = './data/speech_test.wav'
-    speech_to_text.record_to_file(input_sound_file)
+    processed_input_text_file = speech_to_text.record_to_file(input_sound_file)
 
     speech_to_text_start = time()
-    processed_input_text_file = speech_file_processor.process_audio_file(input_sound_file, persist=True)
+    #processed_input_text_file = speech_file_processor.process_audio_file(input_sound_file, persist=True)
 
     with open(processed_input_text_file) as f:
         input_lyrics = f.read().lower()
 
     speech_to_text_total_time = time() - speech_to_text_start
     print('Speech to text time:', speech_to_text_total_time)
+    print('Speech to text results: {}'.format(input_lyrics))
+
 
 
     # get keywords from text
