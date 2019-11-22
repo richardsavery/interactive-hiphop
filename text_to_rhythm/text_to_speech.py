@@ -33,6 +33,10 @@ engine = pyttsx3.init()
 engine.setProperty("voice", "english")
 
 
+def abs_file_path(*rel_path):
+    curr_directory = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(curr_directory, *rel_path)
+
 def print_voices():
     voices = engine.getProperty("voices")
     for voice in voices:
@@ -88,7 +92,7 @@ def read_aiff(filename):
 
 
 def text_to_rhythm(text, bpm):
-    directory = "./split_audio"
+    directory = abs_file_path("split_audio")
     tokenized_audio = []
 
     # remove old audio
