@@ -30,16 +30,16 @@ def main():
     get_data_file_path = lambda filename : os.path.join(project_directory, 'data', filename) 
 
     # # get input lyrics text from audio
-    # print_spacer("Speech To Text")
-    # speech_to_text = AudioRecorder()
-    # input_sound_file = get_data_file_path('speech_test.wav')
-    # speech_to_text.record_to_file(input_sound_file)
+    print_spacer("Speech To Text")
+    speech_to_text = AudioRecorder()
+    input_sound_file = get_data_file_path('speech_test_0.wav')
+    speech_to_text.record_to_file(input_sound_file)
 
-    # speech_to_text_start = time()
-    # speech_file_processor = SpeechFileProcessor()
-    # processed_input_text_file = speech_file_processor.process_audio_file(input_sound_file, persist=True)
+    speech_to_text_start = time()
+    speech_file_processor = SpeechFileProcessor()
+    processed_input_text_file = speech_file_processor.process_audio_file(input_sound_file, persist=True)
 
-    processed_input_text_file = './data/speech_test.txt'
+    # processed_input_text_file = './data/speech_test.txt'
 
     with open(processed_input_text_file) as f:
         input_lyrics = f.read().lower()
