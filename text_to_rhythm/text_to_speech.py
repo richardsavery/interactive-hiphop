@@ -5,23 +5,18 @@ import pyttsx3
 # import aifc
 # from pydub import AudioSegment
 import soundfile as sf
-
 # import sounddevice as sd
 # import audioread
 import numpy as np
 from scipy.io.wavfile import write
 import random
-
 # from pathlib import Path
 import subprocess
 # from gtts import gTTS
-
 # import parselmouth
-import matplotlib.pyplot as plt
-
+# import matplotlib.pyplot as plt
 # import seaborn as sns
 import librosa, librosa.display
-
 # from pydub.silence import split_on_silence
 # import fleep
 
@@ -29,8 +24,8 @@ note_values = set([1 / 4, 1 / 3, 1 / 2, 2 / 3, 1])
 
 engine = pyttsx3.init()
 
-# engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
-engine.setProperty("voice", "english")
+engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
+# engine.setProperty("voice", "english")
 
 
 def print_voices():
@@ -75,10 +70,14 @@ def save_and_tokenize(text):
 
 
 def save_utterance(text, filename):
-    subprocess.call(
-        ["pico2wave", "--wave", filename, text], cwd=os.path.dirname(os.path.abspath(__file__))
-    )
-    # engine.save_to_file(text, filename)
+
+    # using pico2wave (linux)
+    # subprocess.call(
+    #     ["pico2wave", "--wave", filename, text], cwd=os.path.dirname(os.path.abspath(__file__))
+    # )
+
+    # using pyttsx
+    engine.save_to_file(text, filename)
 
 
 def read_aiff(filename):
@@ -88,6 +87,7 @@ def read_aiff(filename):
 
 
 def text_to_rhythm(text, bpm):
+
     directory = "./split_audio"
     tokenized_audio = []
 
@@ -96,22 +96,22 @@ def text_to_rhythm(text, bpm):
         if file.endswith(".wav"):
             os.remove(os.path.join(directory, file))
 
-    # create word aiff files
+    # create word wav files
     save_and_tokenize(text)
-    # numeric = lambda x, y: int(x[:-4]) > int(y[:-4])
     parseInt = lambda x: int(x[:-4])
+
     # read files
     path = os.path.dirname(os.path.abspath(__file__)) + "/split_audio"
-    # path = os.fsencode(path)
     print(path)
     print("DIR ", os.listdir(path))
-    # print(os.listdir("split_audio"))
-
     files = [f for f in os.listdir(path) if f.endswith(".wav")]
     for file in sorted(files, key=parseInt):
         tokenized_audio.append(read_aiff(os.path.join(directory, file)))
 
+    # sample rate
     fs = tokenized_audio[0][1]
+
+    # frames per beat
     fpb = (60 * fs) / bpm
 
     num_flows = random.randint(1, int((len(tokenized_audio) / 8)))
@@ -123,12 +123,18 @@ def text_to_rhythm(text, bpm):
     for words in flow_groups:
         lengths = [len(x) for x in words]
         average = sum(lengths) / len(lengths)
+
+        # Note: I was planning on replacing this with some logic that chose an
+        # appropriate note value instead of just randomly choosing
+
+
         # possible_values = set([note_values[2]])
         # for value in note_values:
         #     if abs(value * fpb - average) / average > 0.95:
         #         possible_values.add(value)
         # value = random.choice(list(possible_values))
 
+        # pick a random note vale and remove it from the set
         possible_values = note_values
 
         if value is not None:
@@ -142,7 +148,7 @@ def text_to_rhythm(text, bpm):
             )
         )
 
-    # rhythmic_audio = punctuate(rhythmic_audio, bpm, fpb)
+    rhythmic_audio = punctuate(rhythmic_audio, bpm, fpb)
 
     sf.write(str(bpm) + ".wav", rhythmic_audio, fs)
 
@@ -173,7 +179,6 @@ def change_duration(word, length):
 Generic flow which stretches all words to given length
 """
 
-
 def generic_flow(tokenized_audio, bpm, length, adapt=True):
     fs = tokenized_audio[0][1]
     rhythmic_audio = []
@@ -192,7 +197,6 @@ old flows which can be simulated by passing in the correct value to
 generic_flow
 
 """
-
 
 def adapt_quarter_flow(tokenized_audio, bpm):
     fs = tokenized_audio[0][1]
@@ -213,7 +217,6 @@ def adapt_quarter_flow(tokenized_audio, bpm):
 """
 A flow which rounds word length to the nearest sixteenth then adds them up
 """
-
 
 def adapt_sixteenth_flow(tokenized_audio, bpm):
     fs = tokenized_audio[0][1]
