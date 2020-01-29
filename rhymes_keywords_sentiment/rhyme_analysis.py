@@ -53,7 +53,9 @@ class RhymeAnalysis(PhoneticAnalysis):
             raise ValueError('Suffix length must be positive')
 
         res = defaultdict(list)
-        sorted_words = sorted(rhyming_words, key=lambda entry: len(entry[0]), reverse=True)
+        # print(rhyming_words)
+        sorted_words = sorted(rhyming_words.items(), key=lambda entry: len(entry[0]), reverse=True)
+        # print(sorted_words)
         for vowel_seq, words in sorted_words:
             vowels = vowel_seq.split(":")
             suffix = ":".join(vowels[-min_suffix_length:])
@@ -165,11 +167,60 @@ def run_test_suffixes():
     print_rhyme_schemes(rhyme_schemes)
     
     print('\nSuffixes')
-    suffixes = rhyme.merge_rhyme_schemes_by_suffix(rhyme_schemes, 2)
+    suffixes = rhyme.get_rhyme_schemes(min_suffix_length=2)
     sorted_suffixes = sort_rhyme_scheme_dict(suffixes)
     print_rhyme_schemes(sorted_suffixes, suffixes=True)
 
     print(rhyme.get_rhyming_score())
 
+def run_test_comprehensive():
+    print("Re:Definition - Mos Def\n")
+
+    mosdef_text = open("./redefinition_mosdef.txt", 'r').read()
+    mosdef_ipa = open("./redefinition_mosdef.txt.ipa", 'r').read()
+
+    rhyme_mos = RhymeAnalysis(mosdef_text, mosdef_ipa)
+    rhyme_schemes = rhyme_mos.get_rhyme_schemes()
+
+    # sort rhyme schemes by decreasing number of words in a grouping
+    rhyme_schemes = sort_rhyme_scheme_dict(rhyme_schemes)
+
+    print_rhyme_schemes(rhyme_schemes)
+
+    rhyme_score = rhyme_mos.get_rhyming_score()
+    print('\nRhyme score: {0}'.format(rhyme_score))
+    
+    print('\nSuffixes')
+    suffixes = rhyme_mos.get_rhyme_schemes(min_suffix_length=2)
+    sorted_suffixes = sort_rhyme_scheme_dict(suffixes)
+    print_rhyme_schemes(sorted_suffixes, suffixes=True)
+
+    rhyme_score = rhyme_mos.get_rhyming_score(min_suffix_length=2)
+    print('\nRhyme score: {0}'.format(rhyme_score))
+
+    print('\n==========\n')
+
+    print("Rakim - Microphone Fiend")
+
+    rakim_text = open("./microphone_fiend.txt", 'r').read()
+    rakim_ipa = open("./microphone_fiend.txt.ipa", 'r').read()
+
+    rhyme_rak = RhymeAnalysis(rakim_text, rakim_ipa)
+    rhyme_schemes = rhyme_rak.get_rhyme_schemes()
+    rhyme_schemes = sort_rhyme_scheme_dict(rhyme_schemes)
+
+    print_rhyme_schemes(rhyme_schemes)
+
+    rhyme_score = rhyme_rak.get_rhyming_score()
+    print('\nRhyme score: {0}'.format(rhyme_score))
+
+    print('\nSuffixes')
+    suffixes = rhyme_rak.get_rhyme_schemes(min_suffix_length=2)
+    sorted_suffixes = sort_rhyme_scheme_dict(suffixes)
+    print_rhyme_schemes(sorted_suffixes, suffixes=True)
+
+    rhyme_score = rhyme_rak.get_rhyming_score(min_suffix_length=2)
+    print('\nRhyme score: {0}'.format(rhyme_score))
+
 if __name__ == "__main__":
-    run_test_suffixes()
+    run_test_comprehensive()
